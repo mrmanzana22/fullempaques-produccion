@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#1a1a2e"/>
+  <rect x="32" y="32" width="448" height="448" rx="48" fill="#16213e"/>
+  
+  <!-- Gear icon representing production -->
+  <g transform="translate(256,240)">
+    <circle r="50" fill="none" stroke="#4a90d9" stroke-width="20"/>
+    <g fill="#4a90d9">
+      <rect x="-15" y="-130" width="30" height="50" rx="8"/>
+      <rect x="-15" y="80" width="30" height="50" rx="8"/>
+      <rect x="-130" y="-15" width="50" height="30" rx="8"/>
+      <rect x="80" y="-15" width="50" height="30" rx="8"/>
+      <rect x="55" y="-105" width="30" height="50" rx="8" transform="rotate(45)"/>
+      <rect x="-85" y="55" width="30" height="50" rx="8" transform="rotate(45)"/>
+      <rect x="55" y="55" width="30" height="50" rx="8" transform="rotate(-45)"/>
+      <rect x="-85" y="-105" width="30" height="50" rx="8" transform="rotate(-45)"/>
+    </g>
+  </g>
+  
+  <!-- FE letters -->
+  <text x="256" y="440" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="72" font-weight="bold" fill="#4a90d9">FULLEMPAQUES</text>
+</svg>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4a90d9">
+  <title>Sin Conexión - FULLEMPAQUES</title>
+  <style>
+    :root {
+      --primary: #4a90d9;
+      --bg-dark: #1a1a2e;
+      --bg-card: #16213e;
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --warning: #ed8936;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .offline-icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 30px;
+      opacity: 0.8;
+    }
+
+    .offline-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: var(--warning);
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 400px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .retry-btn {
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .retry-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .retry-btn:active {
+      transform: scale(0.95);
+    }
+
+    .status-info {
+      margin-top: 40px;
+      padding: 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      max-width: 400px;
+    }
+
+    .status-info h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .status-info ul {
+      list-style: none;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .status-info li {
+      padding: 5px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .status-info li::before {
+      content: ".";
+      color: var(--primary);
+      position: absolute;
+      left: 0;
+    }
+
+    .logo {
+      position: fixed;
+      bottom: 30px;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .logo span {
+      color: var(--primary);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ed8936" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="1" y1="1" x2="23" y2="23"></line>
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+      <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+      <line x1="12" y1="20" x2="12.01" y2="20"></line>
+    </svg>
+  </div>
+
+  <h1>Sin Conexión</h1>
+  <p>No hay conexión a internet en este momento. Tus operaciones serán guardadas y sincronizadas cuando se restablezca la conexión.</p>
+
+  <button class="retry-btn" onclick="window.location.reload()">
+    Reintentar Conexión
+  </button>
+
+  <div class="status-info">
+    <h3>Mientras tanto puedes:</h3>
+    <ul>
+      <li>Verificar tu conexión WiFi</li>
+      <li>Las operaciones en cola se sincronizarán automáticamente</li>
+      <li>Si el problema persiste, contacta a soporte técnico</li>
+    </ul>
+  </div>
+
+  <div class="logo">
+    <span>FULLEMPAQUES</span> | Control de Producción
+  </div>
+
+  <script>
+    // Auto-retry cuando se detecte conexión
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+
+    // Vibrar si está disponible (feedback táctil)
+    if ('vibrate' in navigator) {
+      navigator.vibrate(200);
+    }
+  </script>
+</body>
+</html>

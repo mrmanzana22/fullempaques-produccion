@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#4a90d9">
+  <meta name="description" content="Sistema de control de producción FULLEMPAQUES">
+
+  <title>Producción - FULLEMPAQUES</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ========== PANTALLA LOGIN ========== -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-logo">FULLEMPAQUES</div>
+    <div class="login-subtitle">Control de Producción</div>
+
+    <div class="pin-display">
+      <div class="pin-dot" data-index="0"></div>
+      <div class="pin-dot" data-index="1"></div>
+      <div class="pin-dot" data-index="2"></div>
+      <div class="pin-dot" data-index="3"></div>
+    </div>
+
+    <div class="pin-keypad">
+      <button class="pin-key" data-value="1">1</button>
+      <button class="pin-key" data-value="2">2</button>
+      <button class="pin-key" data-value="3">3</button>
+      <button class="pin-key" data-value="4">4</button>
+      <button class="pin-key" data-value="5">5</button>
+      <button class="pin-key" data-value="6">6</button>
+      <button class="pin-key" data-value="7">7</button>
+      <button class="pin-key" data-value="8">8</button>
+      <button class="pin-key" data-value="9">9</button>
+      <div></div>
+      <button class="pin-key" data-value="0">0</button>
+      <button class="pin-key delete" data-value="delete">DEL</button>
+    </div>
+
+    <div id="login-error" class="login-error"></div>
+  </div>
+
+  <!-- ========== PANTALLA LISTA OT ========== -->
+  <div id="ot-list-screen" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">FULLEMPAQUES</div>
+        <div class="header-operator">
+          <div class="operator-avatar" id="operator-avatar">--</div>
+          <span id="operator-name">Operador</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div id="connection-status" class="connection-status online">
+          <span class="status-indicator"></span>
+          <span>Conectado</span>
+        </div>
+        <button id="btn-logout" class="btn-logout">Salir</button>
+      </div>
+    </header>
+
+    <div class="ot-list-screen">
+      <div class="ot-list-header">
+        <h1 class="ot-list-title">Órdenes de Trabajo</h1>
+        <div class="ot-filter-tabs">
+          <button class="filter-tab active" data-filter="todas">Todas</button>
+          <button class="filter-tab" data-filter="pendiente">Pendientes</button>
+          <button class="filter-tab" data-filter="en_proceso">En Proceso</button>
+        </div>
+      </div>
+
+      <div id="ot-list-container" class="ot-list-container">
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PANTALLA TRABAJO ========== -->
+  <div id="work-screen" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">FULLEMPAQUES</div>
+        <div class="header-operator">
+          <div class="operator-avatar" id="work-operator-avatar">--</div>
+          <span id="work-operator-name">Operador</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div id="work-connection-status" class="connection-status online">
+          <span class="status-indicator"></span>
+          <span>Conectado</span>
+        </div>
+        <button id="btn-back-to-list" class="btn-logout">Volver</button>
+      </div>
+    </header>
+
+    <div class="work-screen">
+      <aside class="work-sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Orden de Trabajo</div>
+          <div class="sidebar-value large" id="work-ot-number">OT-2026-01-0001</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Cliente</div>
+          <div class="sidebar-value" id="work-cliente">Cliente Demo</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Producto</div>
+          <div class="sidebar-value" id="work-producto">Producto Demo</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Estación Actual</div>
+          <div class="sidebar-value" id="work-estacion">Diseño</div>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="sidebar-label">Estación Anterior</div>
+          <div class="sidebar-value" id="work-estacion-anterior">-</div>
+        </div>
+      </aside>
+
+      <main class="work-main">
+        <div class="timer-container">
+          <div id="timer-status" class="timer-status">Listo para iniciar</div>
+          <div id="timer-display" class="timer-display">00:00:00</div>
+
+          <div class="quantity-display">
+            <div class="quantity-item">
+              <div class="quantity-label">Cantidad Entrada</div>
+              <div class="quantity-value entrada" id="qty-entrada">0</div>
+            </div>
+            <div class="quantity-item">
+              <div class="quantity-label">Cantidad Salida</div>
+              <div class="quantity-value salida" id="qty-salida">0</div>
+            </div>
+            <div class="quantity-item">
+              <div class="quantity-label">Merma</div>
+              <div class="quantity-value merma" id="qty-merma">0</div>
+            </div>
+          </div>
+
+          <div id="action-buttons" class="action-buttons">
+            <!-- Botones se renderizan dinámicamente según el estado -->
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ========== MODAL PAUSA ========== -->
+  <div id="modal-pause" class="modal-overlay">
+    <div class="modal">
+      <h2 class="modal-title">Registrar Pausa</h2>
+      <p class="modal-subtitle">Selecciona el motivo de la pausa</p>
+
+      <div id="pause-options" class="pause-options">
+        <!-- Opciones se cargan dinámicamente -->
+      </div>
+
+      <textarea id="pause-detail" class="pause-detail" rows="3" placeholder="Detalle adicional (opcional)"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn-modal cancel" id="btn-cancel-pause">Cancelar</button>
+        <button class="btn-modal warning" id="btn-confirm-pause">Confirmar Pausa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODAL COMPLETAR ========== -->
+  <div id="modal-complete" class="modal-overlay">
+    <div class="modal">
+      <h2 class="modal-title">Completar Estación</h2>
+
+      <div class="complete-form">
+        <div class="form-group">
+          <label class="form-label">Cantidad de Salida</label>
+          <input type="number" id="complete-qty-salida" class="form-input" min="0" placeholder="0">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cantidad de Merma</label>
+          <input type="number" id="complete-qty-merma" class="form-input" min="0" placeholder="0">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notas (opcional)</label>
+          <textarea id="complete-notes" class="pause-detail" rows="2" placeholder="Observaciones..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal cancel" id="btn-cancel-complete">Cancelar</button>
+        <button class="btn-modal success" id="btn-confirm-complete">Completar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MODAL CANTIDAD ENTRADA ========== -->
+  <div id="modal-entrada" class="modal-overlay">
+    <div class="modal">
+      <h2 class="modal-title">Cantidad de Entrada</h2>
+      <p class="modal-subtitle">Ingresa la cantidad de unidades a procesar</p>
+
+      <div class="complete-form">
+        <div class="form-group">
+          <input type="number" id="entrada-qty" class="form-input" min="1" placeholder="0" style="font-size: 2rem;">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-modal cancel" id="btn-cancel-entrada">Cancelar</button>
+        <button class="btn-modal confirm" id="btn-confirm-entrada">Iniciar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- App JS -->
+  <script src="app.js"></script>
+</body>
+</html>
