@@ -137,6 +137,8 @@ async function attemptLogin(pin) {
   const errorElement = document.getElementById('login-error');
   errorElement.textContent = '';
 
+  console.log('[App] Intentando login con PIN:', pin);
+
   try {
     const { data, error } = await db
       .from('operadores')
@@ -145,7 +147,10 @@ async function attemptLogin(pin) {
       .eq('activo', true)
       .single();
 
+    console.log('[App] Respuesta Supabase:', { data, error });
+
     if (error || !data) {
+      console.log('[App] Login fallido - error:', error);
       errorElement.textContent = 'PIN incorrecto';
       pinValue = '';
       updatePinDisplay();
@@ -218,6 +223,13 @@ function initEventListeners() {
   document.getElementById('btn-confirm-complete').addEventListener('click', confirmComplete);
   document.getElementById('btn-cancel-entrada').addEventListener('click', () => closeModal('entrada'));
   document.getElementById('btn-confirm-entrada').addEventListener('click', confirmEntrada);
+
+  // Mostrar/ocultar campos de motivo de merma
+  document.getElementById('complete-qty-merma').addEventListener('input', (e) => {
+    const hayMerma = parseInt(e.target.value) > 0;
+    document.getElementById('merma-motivo-container').style.display = hayMerma ? 'block' : 'none';
+    document.getElementById('merma-observacion-container').style.display = hayMerma ? 'block' : 'none';
+  });
 }
 
 function logout() {
@@ -336,6 +348,8 @@ function formatEstado(estado) {
 // ========== PANTALLA DE TRABAJO ==========
 async function openWorkScreen(otId) {
   try {
+    console.log('[App] Abriendo OT:', otId);
+
     // Cargar OT con estaciones
     const { data: ot, error } = await db
       .from('ordenes_trabajo')
@@ -348,6 +362,9 @@ async function openWorkScreen(otId) {
       `)
       .eq('id', otId)
       .single();
+
+    console.log('[App] OT cargada:', ot);
+    console.log('[App] Estaciones:', ot?.ot_estaciones);
 
     if (error) throw error;
 
@@ -362,6 +379,9 @@ async function openWorkScreen(otId) {
     const estacionPendiente = ot.ot_estaciones
       .sort((a, b) => (a.estaciones?.orden_flujo || 0) - (b.estaciones?.orden_flujo || 0))
       .find(e => e.estado === 'pendiente');
+
+    console.log('[App] Mi estación:', miEstacion);
+    console.log('[App] Estación pendiente:', estacionPendiente);
 
     currentOTEstacion = miEstacion || estacionPendiente;
 
@@ -650,10 +670,33 @@ async function reanudarEstacion() {
   }
 }
 
-function openCompleteModal() {
+async function openCompleteModal() {
   document.getElementById('complete-qty-salida').value = currentOTEstacion.cantidad_entrada || '';
   document.getElementById('complete-qty-merma').value = '0';
   document.getElementById('complete-notes').value = '';
+  document.getElementById('complete-obs-merma').value = '';
+
+  // Ocultar campos de motivo inicialmente
+  document.getElementById('merma-motivo-container').style.display = 'none';
+  document.getElementById('merma-observacion-container').style.display = 'none';
+
+  // Cargar motivos de merma
+  try {
+    const { data: motivos, error } = await db
+      .from('motivos_merma')
+      .select('*')
+      .eq('activo', true)
+      .order('nombre');
+
+    if (!error && motivos) {
+      const select = document.getElementById('complete-motivo-merma');
+      select.innerHTML = '<option value="">Seleccionar motivo...</option>' +
+        motivos.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('');
+    }
+  } catch (err) {
+    console.error('[App] Error cargando motivos merma:', err);
+  }
+
   openModal('complete');
 }
 
@@ -661,9 +704,17 @@ async function confirmComplete() {
   const cantidadSalida = parseInt(document.getElementById('complete-qty-salida').value) || 0;
   const cantidadMerma = parseInt(document.getElementById('complete-qty-merma').value) || 0;
   const notas = document.getElementById('complete-notes').value;
+  const motivoMermaId = document.getElementById('complete-motivo-merma').value || null;
+  const obsMerma = document.getElementById('complete-obs-merma').value || null;
 
   if (cantidadSalida < 0 || cantidadMerma < 0) {
     showToast('Las cantidades no pueden ser negativas', 'error');
+    return;
+  }
+
+  // Validar que si hay merma, se seleccione un motivo
+  if (cantidadMerma > 0 && !motivoMermaId) {
+    showToast('Selecciona un motivo de merma', 'error');
     return;
   }
 
@@ -672,7 +723,9 @@ async function confirmComplete() {
       p_ot_estacion_id: currentOTEstacion.id,
       p_cantidad_salida: cantidadSalida,
       p_cantidad_merma: cantidadMerma,
-      p_notas: notas || null
+      p_notas: notas || null,
+      p_motivo_merma_id: motivoMermaId ? parseInt(motivoMermaId) : null,
+      p_observacion_merma: obsMerma
     });
 
     if (error) throw error;
