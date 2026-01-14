@@ -281,10 +281,18 @@ async function loadOTList(filter = 'todas') {
 
     container.innerHTML = data.map(ot => renderOTCard(ot)).join('');
 
-    // Event listeners para cards
-    container.querySelectorAll('.ot-card').forEach(card => {
-      card.addEventListener('click', () => openWorkScreen(card.dataset.otId));
-    });
+    // Event delegation - más confiable que adjuntar a cada card
+    const cards = container.querySelectorAll('.ot-card');
+    console.log('[App] Cards renderizadas:', cards.length);
+
+    // Remover listener anterior si existe y agregar nuevo
+    container.onclick = (e) => {
+      const card = e.target.closest('.ot-card');
+      if (card && card.dataset.otId) {
+        console.log('[App] Click detectado en OT:', card.dataset.otId);
+        openWorkScreen(card.dataset.otId);
+      }
+    };
 
   } catch (err) {
     console.error('[App] Error cargando OTs:', err);
@@ -776,5 +784,6 @@ window.openPauseModal = openPauseModal;
 window.openCompleteModal = openCompleteModal;
 window.reanudarEstacion = reanudarEstacion;
 window.openEntradaModal = openEntradaModal;
+window.openWorkScreen = openWorkScreen;  // ← CRÍTICO: Estaba faltando!
 window.showScreen = showScreen;
 window.loadOTList = loadOTList;

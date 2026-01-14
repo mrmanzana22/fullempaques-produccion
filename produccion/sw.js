@@ -1,5 +1,5 @@
 // Service Worker para FULLEMPAQUES Producción
-const CACHE_NAME = 'fullempaques-prod-v6';
+const CACHE_NAME = 'fullempaques-prod-v7';
 const OFFLINE_URL = '/produccion/offline.html';
 
 const STATIC_ASSETS = [
@@ -56,12 +56,41 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para assets estáticos - Cache first
+  // Para HTML, JS, CSS - Network first (para desarrollo)
   if (request.method === 'GET') {
-    event.respondWith(cacheFirst(request));
+    const isCodeFile = url.pathname.endsWith('.html') ||
+                       url.pathname.endsWith('.js') ||
+                       url.pathname.endsWith('.css');
+
+    if (isCodeFile) {
+      event.respondWith(networkFirst(request));
+    } else {
+      event.respondWith(cacheFirst(request));
+    }
     return;
   }
 });
+
+// Estrategia Network First (para archivos de código)
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    if (request.mode === 'navigate') {
+      return caches.match(OFFLINE_URL);
+    }
+    throw error;
+  }
+}
 
 // Estrategia Cache First
 async function cacheFirst(request) {
