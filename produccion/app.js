@@ -1052,14 +1052,14 @@ async function confirmComplete() {
 
     if (error) throw error;
 
-    // Guardar URL de evidencia si existe
+    // Guardar URL de evidencia usando RPC
     if (evidenciaUrl) {
       console.log('[App] Guardando URL en BD:', evidenciaUrl);
-      const { error: updateError } = await db
-        .from('ot_estaciones')
-        .update({ evidencia_merma_url: evidenciaUrl })
-        .eq('id', currentOTEstacion.id);
-      
+      const { error: updateError } = await db.rpc('guardar_evidencia_merma', {
+        p_ot_estacion_id: currentOTEstacion.id,
+        p_evidencia_url: evidenciaUrl
+      });
+
       if (updateError) {
         console.error('[App] Error guardando URL:', updateError);
       } else {
