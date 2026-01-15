@@ -1,5 +1,5 @@
 // Service Worker para FULLEMPAQUES Producción
-const CACHE_NAME = 'fullempaques-prod-v7';
+const CACHE_NAME = 'fullempaques-prod-v8';
 const OFFLINE_URL = '/produccion/offline.html';
 
 const STATIC_ASSETS = [

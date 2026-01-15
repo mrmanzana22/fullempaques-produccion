@@ -705,6 +705,35 @@ async function openCompleteModal() {
     console.error('[App] Error cargando motivos merma:', err);
   }
 
+  // Calcular merma automáticamente cuando cambia la salida
+  const salidaInput = document.getElementById('complete-qty-salida');
+  const mermaInput = document.getElementById('complete-qty-merma');
+  const cantidadEntrada = currentOTEstacion.cantidad_entrada || 0;
+
+  // Hacer merma read-only (calculada automáticamente)
+  mermaInput.readOnly = true;
+  mermaInput.style.backgroundColor = '#f0f0f0';
+
+  salidaInput.oninput = () => {
+    const salida = parseInt(salidaInput.value) || 0;
+    const merma = Math.max(0, cantidadEntrada - salida);
+    mermaInput.value = merma;
+
+    // Mostrar/ocultar campos de motivo según merma
+    const showMotivo = merma > 0;
+    document.getElementById('merma-motivo-container').style.display = showMotivo ? 'block' : 'none';
+    document.getElementById('merma-observacion-container').style.display = showMotivo ? 'block' : 'none';
+
+    // Resetear motivo si no hay merma
+    if (!showMotivo) {
+      document.getElementById('complete-motivo-merma').value = '';
+      document.getElementById('complete-obs-merma').value = '';
+    }
+  };
+
+  // Disparar cálculo inicial
+  salidaInput.dispatchEvent(new Event('input'));
+
   openModal('complete');
 }
 
