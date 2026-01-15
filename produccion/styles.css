@@ -251,6 +251,7 @@ body {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .filter-tab.active {
@@ -387,6 +388,7 @@ body {
 .work-screen {
   display: flex;
   height: calc(100vh - 70px);
+  overflow: hidden;
 }
 
 .work-sidebar {
@@ -395,6 +397,7 @@ body {
   border-right: 1px solid var(--border-color);
   padding: 25px;
   overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .work-main {
@@ -402,6 +405,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 25px;
+  overflow-y: auto;
 }
 
 /* Sidebar Info */
@@ -565,6 +569,7 @@ body {
   display: flex;
   gap: 20px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .btn-action {
@@ -623,6 +628,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
+  padding: 15px;
 }
 
 .modal-overlay.active {
@@ -1054,6 +1060,7 @@ body {
 .success-content {
   text-align: center;
   animation: success-pop 0.5s ease;
+  padding: 20px;
 }
 
 @keyframes success-pop {
@@ -1106,6 +1113,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 50px;
+  flex-wrap: wrap;
 }
 
 .success-stat {
@@ -1143,6 +1151,7 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
+  padding: 15px;
 }
 
 .merma-alert-overlay.show {
@@ -1157,6 +1166,7 @@ body {
   padding: 40px 60px;
   text-align: center;
   animation: shake-alert 0.5s ease;
+  max-width: 95%;
 }
 
 @keyframes shake-alert {
@@ -1221,7 +1231,7 @@ body {
   transform: scale(1.05);
 }
 
-/* ========== RESPONSIVE ========== */
+/* ========== RESPONSIVE TABLET ========== */
 @media (max-width: 1024px) {
   .work-sidebar {
     width: 280px;
@@ -1236,9 +1246,94 @@ body {
   }
 }
 
+/* ========== RESPONSIVE TABLET SMALL / LARGE PHONE ========== */
 @media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .app-header {
+    padding: 10px 15px;
+    height: 60px;
+  }
+
+  .header-logo {
+    font-size: 1.2rem;
+  }
+
+  .header-operator span {
+    display: none;
+  }
+
+  .operator-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  .connection-status span:last-child {
+    display: none;
+  }
+
+  .connection-status {
+    padding: 8px 12px;
+  }
+
+  .btn-logout {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  /* OT List */
+  .ot-list-screen {
+    height: calc(100vh - 60px);
+  }
+
+  .ot-list-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    align-items: stretch;
+  }
+
+  .ot-list-title {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+
+  .ot-filter-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px;
+  }
+
+  .filter-tab {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .ot-list-container {
+    padding: 0 15px 15px;
+  }
+
+  .ot-card {
+    padding: 15px;
+  }
+
+  .ot-number {
+    font-size: 1.1rem;
+  }
+
+  .ot-status {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Work Screen */
   .work-screen {
     flex-direction: column;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
   }
 
   .work-sidebar {
@@ -1246,20 +1341,483 @@ body {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
     padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .sidebar-section {
+    margin-bottom: 0;
+  }
+
+  .sidebar-section:first-child {
+    grid-column: span 2;
+    text-align: center;
+  }
+
+  .sidebar-value.large {
+    font-size: 1.3rem;
+  }
+
+  .sidebar-label {
+    font-size: 0.75rem;
+  }
+
+  .sidebar-value {
+    font-size: 1rem;
   }
 
   .work-main {
     padding: 15px;
+    flex: 1;
+  }
+
+  .timer-container {
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+
+  .timer-status {
+    font-size: 1rem;
+    margin-bottom: 10px;
   }
 
   .timer-display {
-    font-size: 3rem;
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+  }
+
+  .efficiency-display {
+    gap: 15px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+  }
+
+  .efficiency-label {
+    font-size: 0.65rem;
+  }
+
+  .efficiency-value {
+    font-size: 0.95rem;
+  }
+
+  .quantity-display {
+    gap: 20px;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+
+  .quantity-label {
+    font-size: 0.85rem;
+  }
+
+  .quantity-value {
+    font-size: 1.8rem;
+  }
+
+  .action-buttons {
+    gap: 10px;
   }
 
   .btn-action {
-    padding: 15px 30px;
+    padding: 15px 25px;
+    font-size: 1rem;
+    min-width: 140px;
+    flex: 1;
+  }
+
+  /* Modals */
+  .modal {
+    min-width: unset;
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 10px;
+  }
+
+  .modal-title {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+  }
+
+  .pause-options {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .pause-option {
+    padding: 15px;
+    font-size: 1rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-modal {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  /* Progress bar */
+  #ot-progress-bar {
+    padding: 8px 15px;
+  }
+
+  /* Success overlay */
+  .success-checkmark {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+  }
+
+  .success-title {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+  }
+
+  .success-stats {
+    gap: 25px;
+  }
+
+  .success-stat-value {
+    font-size: 1.5rem;
+  }
+
+  .success-stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* Merma alert */
+  .merma-alert-content {
+    padding: 25px 20px;
+  }
+
+  .merma-alert-icon {
+    font-size: 3rem;
+  }
+
+  .merma-alert-title {
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+  }
+
+  .merma-alert-text {
+    font-size: 0.95rem;
+  }
+
+  .merma-alert-value {
+    font-size: 2.5rem;
+  }
+
+  .merma-alert-btn {
+    padding: 12px 30px;
+    font-size: 1rem;
+    width: 100%;
+  }
+}
+
+/* ========== RESPONSIVE PHONE ========== */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  /* Login */
+  .login-logo {
+    font-size: 1.8rem;
+  }
+
+  .login-subtitle {
+    font-size: 1rem;
+    margin-bottom: 25px;
+  }
+
+  .pin-display {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .pin-dot {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pin-keypad {
+    gap: 10px;
+    max-width: 280px;
+  }
+
+  .pin-key {
+    width: 70px;
+    height: 70px;
+    font-size: 1.6rem;
+  }
+
+  .pin-key.delete {
+    font-size: 1.2rem;
+  }
+
+  /* Header */
+  .app-header {
+    padding: 8px 10px;
+    height: 55px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .header-logo {
+    font-size: 1rem;
+  }
+
+  .operator-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+
+  .header-right {
+    gap: 8px;
+  }
+
+  .connection-status {
+    padding: 6px 8px;
+  }
+
+  .status-indicator {
+    width: 8px;
+    height: 8px;
+  }
+
+  .btn-logout {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  /* OT List */
+  .ot-list-screen {
+    height: calc(100vh - 55px);
+  }
+
+  .ot-list-header {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .ot-list-title {
     font-size: 1.1rem;
-    min-width: 150px;
+  }
+
+  .filter-tab {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .ot-list-container {
+    padding: 0 12px 12px;
+  }
+
+  .ot-card {
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .ot-number {
+    font-size: 1rem;
+  }
+
+  .ot-cliente {
+    font-size: 0.95rem;
+  }
+
+  .ot-producto {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+
+  .station-badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  /* Work screen */
+  .work-screen {
+    height: calc(100vh - 55px);
+  }
+
+  .work-sidebar {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .sidebar-label {
+    font-size: 0.7rem;
+  }
+
+  .sidebar-value {
+    font-size: 0.9rem;
+  }
+
+  .sidebar-value.large {
+    font-size: 1.1rem;
+  }
+
+  .work-main {
+    padding: 12px;
+  }
+
+  .timer-status {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .timer-display {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .efficiency-display {
+    gap: 10px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+  }
+
+  .efficiency-label {
+    font-size: 0.6rem;
+  }
+
+  .efficiency-value {
+    font-size: 0.85rem;
+  }
+
+  .quantity-display {
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .quantity-label {
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+  }
+
+  .quantity-value {
+    font-size: 1.5rem;
+  }
+
+  .action-buttons {
+    gap: 8px;
+    flex-direction: column;
+  }
+
+  .btn-action {
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    min-width: unset;
+    width: 100%;
+  }
+
+  /* Modal */
+  .modal {
+    padding: 15px;
+    margin: 5px;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .modal-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+  }
+
+  .form-input {
+    padding: 12px;
+    font-size: 1rem;
+  }
+
+  .pause-detail {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .complete-form {
+    gap: 15px;
+  }
+
+  /* Merma calc */
+  .merma-calc-container {
+    padding: 12px 15px;
+  }
+
+  .merma-result {
+    font-size: 2rem;
+    min-width: 60px;
+  }
+
+  /* Evidence */
+  .btn-capture {
+    padding: 12px 20px;
+    font-size: 1rem;
+  }
+
+  .preview-container {
+    max-width: 250px;
+  }
+
+  /* Progress bar */
+  #ot-progress-bar {
+    padding: 6px 12px;
+  }
+
+  .progress-info {
+    font-size: 0.75rem;
+  }
+
+  /* Toast */
+  .toast {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    bottom: 20px;
+    max-width: 90%;
+  }
+}
+
+/* ========== RESPONSIVE VERY SMALL PHONE ========== */
+@media (max-width: 380px) {
+  .pin-key {
+    width: 60px;
+    height: 60px;
+    font-size: 1.4rem;
+  }
+
+  .pin-keypad {
+    gap: 8px;
+  }
+
+  .header-logo {
+    display: none;
+  }
+
+  .timer-display {
+    font-size: 1.8rem;
+  }
+
+  .quantity-value {
+    font-size: 1.3rem;
+  }
+
+  .efficiency-display {
+    flex-wrap: wrap;
   }
 }
 
