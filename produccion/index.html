@@ -241,6 +241,22 @@
           <textarea id="complete-obs-merma" class="pause-detail" rows="2" placeholder="Describe el problema..."></textarea>
         </div>
 
+        <!-- Evidencia fotográfica (visible solo si hay merma) -->
+        <div id="evidencia-container" class="form-group" style="display: none;">
+          <label class="form-label">Evidencia Fotográfica</label>
+          <div class="evidencia-capture">
+            <input type="file" id="foto-evidencia" accept="image/*" capture="environment" style="display: none;">
+            <button type="button" class="btn-capture" id="btn-capture-foto">
+              📷 Tomar Foto
+            </button>
+            <div id="preview-evidencia" class="preview-container" style="display: none;">
+              <img id="img-preview" src="" alt="Preview">
+              <button type="button" class="btn-remove-foto" id="btn-remove-foto">✕</button>
+            </div>
+          </div>
+          <p class="evidencia-hint">Toma una foto del material defectuoso</p>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Notas (opcional)</label>
           <textarea id="complete-notes" class="pause-detail" rows="2" placeholder="Observaciones..."></textarea>
