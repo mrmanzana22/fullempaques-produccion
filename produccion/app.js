@@ -437,6 +437,12 @@ function updateWorkScreen() {
   document.getElementById('qty-salida').textContent = currentOTEstacion.cantidad_salida || 0;
   document.getElementById('qty-merma').textContent = currentOTEstacion.cantidad_merma || 0;
 
+  // Unidad de medida
+  const unidad = currentOT.unidad_medida || 'unidades';
+  document.getElementById('unidad-entrada').textContent = `(${unidad})`;
+  document.getElementById('unidad-salida').textContent = `(${unidad})`;
+  document.getElementById('unidad-merma').textContent = `(${unidad})`;
+
   // Actualizar barra de progreso
   updateProgressBar();
 
@@ -914,7 +920,7 @@ async function confirmComplete() {
   }
 }
 
-function showSuccessOverlay(tiempoMs, eficiencia, unidades) {
+function showSuccessOverlay(tiempoMs, eficiencia, cantidad) {
   const overlay = document.getElementById('success-overlay');
 
   // Formatear tiempo
@@ -923,9 +929,12 @@ function showSuccessOverlay(tiempoMs, eficiencia, unidades) {
   const seconds = Math.floor((tiempoMs % 60000) / 1000);
   const tiempoStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
+  // Obtener unidad de medida
+  const unidad = currentOT?.unidad_medida || 'unidades';
+
   document.getElementById('success-tiempo').textContent = tiempoStr;
   document.getElementById('success-eficiencia').textContent = `${eficiencia}%`;
-  document.getElementById('success-salida').textContent = unidades.toLocaleString();
+  document.getElementById('success-salida').textContent = `${cantidad.toLocaleString()} ${unidad}`;
 
   overlay.classList.add('show');
 

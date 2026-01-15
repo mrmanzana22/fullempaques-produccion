@@ -553,6 +553,13 @@ body {
   color: var(--danger);
 }
 
+.unidad-label {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 /* Action Buttons */
 .action-buttons {
   display: flex;
