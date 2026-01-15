@@ -1,5 +1,5 @@
 // Service Worker para FULLEMPAQUES Producción
-const CACHE_NAME = 'fullempaques-prod-v15';
+const CACHE_NAME = 'fullempaques-prod-v16';
 const OFFLINE_URL = '/produccion/offline.html';
 
 const STATIC_ASSETS = [
@@ -10,9 +10,7 @@ const STATIC_ASSETS = [
   '/produccion/offline.html',
   '/produccion/manifest.json',
   '/produccion/icons/icon-192.svg',
-  '/produccion/icons/icon-512.svg',
-  '/produccion/reportes.html',
-  '/produccion/reportes.js'
+  '/produccion/icons/icon-512.svg'
 ];
 
 // Instalación - cachear assets estáticos
