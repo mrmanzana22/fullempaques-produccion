@@ -193,6 +193,19 @@
           <input type="number" id="complete-qty-merma" class="form-input" min="0" placeholder="0">
         </div>
 
+        <!-- Motivo de merma (visible solo si hay merma) -->
+        <div id="merma-motivo-container" class="form-group" style="display: none;">
+          <label class="form-label">Motivo de Merma</label>
+          <select id="complete-motivo-merma" class="form-input">
+            <option value="">Seleccionar motivo...</option>
+          </select>
+        </div>
+
+        <div id="merma-observacion-container" class="form-group" style="display: none;">
+          <label class="form-label">Observación de Merma</label>
+          <textarea id="complete-obs-merma" class="pause-detail" rows="2" placeholder="Describe el problema..."></textarea>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Notas (opcional)</label>
           <textarea id="complete-notes" class="pause-detail" rows="2" placeholder="Observaciones..."></textarea>
