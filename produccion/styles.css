@@ -883,11 +883,12 @@ body {
   color: white;
 }
 
-/* ========== BARRA PROGRESO OT ========== */
-.ot-progress-bar {
+/* ========== BARRA PROGRESO OT (Work Screen) ========== */
+#ot-progress-bar {
   background: var(--bg-card);
   padding: 10px 20px;
   border-bottom: 1px solid var(--border-color);
+  display: block;
 }
 
 .progress-info {
