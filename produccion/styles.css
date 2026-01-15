@@ -720,6 +720,65 @@ body {
   color: white;
 }
 
+/* ========== MERMA CALCULADA ========== */
+.merma-calc-container {
+  background: linear-gradient(135deg, #2d1f3d 0%, #1a1a2e 100%);
+  border: 2px solid var(--warning);
+  border-radius: 12px;
+  padding: 15px 20px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.merma-calc-header {
+  font-size: 0.85rem;
+  color: var(--warning);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.merma-calc-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.merma-formula {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.merma-formula span {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.merma-result {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--warning);
+  min-width: 80px;
+}
+
+.merma-result.high {
+  color: var(--danger);
+  animation: pulse-danger 1s ease-in-out infinite;
+}
+
+.merma-unit {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 /* ========== UTILIDADES ========== */
 .hidden {
   display: none !important;

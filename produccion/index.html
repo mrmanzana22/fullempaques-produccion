@@ -188,9 +188,17 @@
           <input type="number" id="complete-qty-salida" class="form-input" min="0" placeholder="0">
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Cantidad de Merma</label>
-          <input type="number" id="complete-qty-merma" class="form-input" min="0" placeholder="0">
+        <!-- Merma calculada automáticamente -->
+        <div id="merma-calc-container" class="merma-calc-container" style="display: none;">
+          <div class="merma-calc-header">Merma Calculada</div>
+          <div class="merma-calc-display">
+            <span class="merma-formula">
+              <span id="merma-entrada">0</span> - <span id="merma-salida">0</span> =
+            </span>
+            <span class="merma-result" id="complete-qty-merma-display">0</span>
+            <span class="merma-unit">unidades</span>
+          </div>
+          <input type="hidden" id="complete-qty-merma" value="0">
         </div>
 
         <!-- Motivo de merma (visible solo si hay merma) -->

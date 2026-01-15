@@ -224,12 +224,6 @@ function initEventListeners() {
   document.getElementById('btn-cancel-entrada').addEventListener('click', () => closeModal('entrada'));
   document.getElementById('btn-confirm-entrada').addEventListener('click', confirmEntrada);
 
-  // Mostrar/ocultar campos de motivo de merma
-  document.getElementById('complete-qty-merma').addEventListener('input', (e) => {
-    const hayMerma = parseInt(e.target.value) > 0;
-    document.getElementById('merma-motivo-container').style.display = hayMerma ? 'block' : 'none';
-    document.getElementById('merma-observacion-container').style.display = hayMerma ? 'block' : 'none';
-  });
 }
 
 function logout() {
@@ -707,25 +701,39 @@ async function openCompleteModal() {
 
   // Calcular merma automáticamente cuando cambia la salida
   const salidaInput = document.getElementById('complete-qty-salida');
-  const mermaInput = document.getElementById('complete-qty-merma');
+  const mermaInput = document.getElementById('complete-qty-merma'); // hidden input
+  const mermaDisplay = document.getElementById('complete-qty-merma-display');
+  const mermaContainer = document.getElementById('merma-calc-container');
+  const mermaEntradaSpan = document.getElementById('merma-entrada');
+  const mermaSalidaSpan = document.getElementById('merma-salida');
   const cantidadEntrada = currentOTEstacion.cantidad_entrada || 0;
 
-  // Hacer merma read-only (calculada automáticamente)
-  mermaInput.readOnly = true;
-  mermaInput.style.backgroundColor = '#f0f0f0';
+  // Mostrar la entrada en la fórmula
+  mermaEntradaSpan.textContent = cantidadEntrada.toLocaleString();
 
   salidaInput.oninput = () => {
     const salida = parseInt(salidaInput.value) || 0;
     const merma = Math.max(0, cantidadEntrada - salida);
+
+    // Actualizar valores
     mermaInput.value = merma;
+    mermaDisplay.textContent = merma.toLocaleString();
+    mermaSalidaSpan.textContent = salida.toLocaleString();
+
+    // Mostrar/ocultar contenedor de merma calculada
+    const showMerma = merma > 0;
+    mermaContainer.style.display = showMerma ? 'block' : 'none';
+
+    // Agregar clase si merma es alta (>10%)
+    const porcentajeMerma = cantidadEntrada > 0 ? (merma / cantidadEntrada) * 100 : 0;
+    mermaDisplay.classList.toggle('high', porcentajeMerma > 10);
 
     // Mostrar/ocultar campos de motivo según merma
-    const showMotivo = merma > 0;
-    document.getElementById('merma-motivo-container').style.display = showMotivo ? 'block' : 'none';
-    document.getElementById('merma-observacion-container').style.display = showMotivo ? 'block' : 'none';
+    document.getElementById('merma-motivo-container').style.display = showMerma ? 'block' : 'none';
+    document.getElementById('merma-observacion-container').style.display = showMerma ? 'block' : 'none';
 
     // Resetear motivo si no hay merma
-    if (!showMotivo) {
+    if (!showMerma) {
       document.getElementById('complete-motivo-merma').value = '';
       document.getElementById('complete-obs-merma').value = '';
     }
