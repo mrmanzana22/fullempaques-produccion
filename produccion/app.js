@@ -15,6 +15,8 @@ let currentOTEstacion = null;
 let timerInterval = null;
 let timerStartTime = null;
 let timerPausedTime = 0;
+let tiempoEnPausas = 0; // Tiempo acumulado en pausas (ms)
+let pausaStartTime = null; // Cuando inició la pausa actual
 let isOnline = navigator.onLine;
 
 // ========== ELEMENTOS DOM ==========
@@ -220,7 +222,7 @@ function initEventListeners() {
   document.getElementById('btn-cancel-pause').addEventListener('click', () => closeModal('pause'));
   document.getElementById('btn-confirm-pause').addEventListener('click', confirmPause);
   document.getElementById('btn-cancel-complete').addEventListener('click', () => closeModal('complete'));
-  document.getElementById('btn-confirm-complete').addEventListener('click', confirmComplete);
+  document.getElementById('btn-confirm-complete').addEventListener('click', handleCompleteWithAlert);
   document.getElementById('btn-cancel-entrada').addEventListener('click', () => closeModal('entrada'));
   document.getElementById('btn-confirm-entrada').addEventListener('click', confirmEntrada);
 
@@ -435,9 +437,50 @@ function updateWorkScreen() {
   document.getElementById('qty-salida').textContent = currentOTEstacion.cantidad_salida || 0;
   document.getElementById('qty-merma').textContent = currentOTEstacion.cantidad_merma || 0;
 
+  // Actualizar barra de progreso
+  updateProgressBar();
+
+  // Actualizar color de fondo según estado
+  updateWorkScreenState();
+
   // Estado del timer
   updateTimerStatus();
   renderActionButtons();
+}
+
+function updateProgressBar() {
+  if (!currentOT || !currentOT.ot_estaciones) return;
+
+  const estaciones = currentOT.ot_estaciones;
+  const total = estaciones.length;
+  const completadas = estaciones.filter(e => e.estado === 'completada').length;
+  const actual = estaciones.findIndex(e => e.id === currentOTEstacion.id) + 1;
+  const porcentaje = total > 0 ? Math.round((completadas / total) * 100) : 0;
+
+  document.getElementById('progress-text').textContent = `Estación ${actual} de ${total}`;
+  document.getElementById('progress-percent').textContent = `${porcentaje}% completado`;
+  document.getElementById('progress-fill').style.width = `${porcentaje}%`;
+}
+
+function updateWorkScreenState() {
+  const workScreenMain = document.getElementById('work-screen-main');
+  if (!workScreenMain) return;
+
+  // Remover todas las clases de estado
+  workScreenMain.classList.remove('estado-pendiente', 'estado-en-proceso', 'estado-pausado', 'estado-merma-alta');
+
+  // Agregar clase según estado actual
+  switch (currentOTEstacion.estado) {
+    case 'pendiente':
+      workScreenMain.classList.add('estado-pendiente');
+      break;
+    case 'en_proceso':
+      workScreenMain.classList.add('estado-en-proceso');
+      break;
+    case 'pausada':
+      workScreenMain.classList.add('estado-pausado');
+      break;
+  }
 }
 
 function updateTimerStatus() {
@@ -512,9 +555,13 @@ function stopTimer() {
 
 function updateTimerDisplay() {
   let elapsed;
+  let pausasActual = tiempoEnPausas;
 
   if (currentOTEstacion.estado === 'en_proceso' && timerStartTime) {
     elapsed = Date.now() - timerStartTime + timerPausedTime;
+  } else if (currentOTEstacion.estado === 'pausada' && pausaStartTime) {
+    elapsed = timerPausedTime;
+    pausasActual = tiempoEnPausas + (Date.now() - pausaStartTime);
   } else {
     elapsed = timerPausedTime;
   }
@@ -525,6 +572,44 @@ function updateTimerDisplay() {
 
   document.getElementById('timer-display').textContent =
     `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+  // Actualizar display de eficiencia
+  updateEfficiencyDisplay(elapsed, pausasActual);
+}
+
+function updateEfficiencyDisplay(tiempoTotal, tiempoPausas) {
+  const effDisplay = document.getElementById('efficiency-display');
+  if (!effDisplay) return;
+
+  // Mostrar solo si hay tiempo transcurrido
+  if (tiempoTotal <= 0 && tiempoPausas <= 0) {
+    effDisplay.style.display = 'none';
+    return;
+  }
+  effDisplay.style.display = 'flex';
+
+  const tiempoEfectivo = Math.max(0, tiempoTotal);
+  const tiempoTotalConPausas = tiempoEfectivo + tiempoPausas;
+
+  // Formatear tiempos
+  const formatTime = (ms) => {
+    const h = Math.floor(ms / 3600000);
+    const m = Math.floor((ms % 3600000) / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  document.getElementById('tiempo-efectivo').textContent = formatTime(tiempoEfectivo);
+  document.getElementById('tiempo-pausas').textContent = formatTime(tiempoPausas);
+
+  // Calcular eficiencia
+  const eficiencia = tiempoTotalConPausas > 0
+    ? Math.round((tiempoEfectivo / tiempoTotalConPausas) * 100)
+    : 100;
+
+  const eficienciaEl = document.getElementById('porcentaje-eficiencia');
+  eficienciaEl.textContent = `${eficiencia}%`;
+  eficienciaEl.classList.toggle('low', eficiencia < 70);
 }
 
 function calcularTiempoAcumulado() {
@@ -574,6 +659,8 @@ async function confirmEntrada() {
 
     timerStartTime = Date.now();
     timerPausedTime = 0;
+    tiempoEnPausas = 0;
+    pausaStartTime = null;
     startTimer();
     updateWorkScreen();
 
@@ -635,15 +722,18 @@ async function confirmPause() {
     if (error) throw error;
 
     closeModal('pause');
-    stopTimer();
 
-    // Guardar tiempo acumulado
+    // Guardar tiempo acumulado y marcar inicio de pausa
     timerPausedTime = Date.now() - timerStartTime + timerPausedTime;
     timerStartTime = null;
+    pausaStartTime = Date.now(); // Iniciar contador de pausa
 
     currentOTEstacion.estado = 'pausada';
     showToast('Estación pausada', 'warning');
     updateWorkScreen();
+
+    // Mantener timer corriendo para mostrar tiempo de pausa
+    startTimer();
 
   } catch (err) {
     console.error('[App] Error pausando:', err);
@@ -660,9 +750,14 @@ async function reanudarEstacion() {
 
     if (error) throw error;
 
+    // Acumular tiempo de pausa
+    if (pausaStartTime) {
+      tiempoEnPausas += Date.now() - pausaStartTime;
+      pausaStartTime = null;
+    }
+
     currentOTEstacion.estado = 'en_proceso';
     timerStartTime = Date.now();
-    startTimer();
     showToast('Estación reanudada', 'success');
     updateWorkScreen();
 
@@ -728,6 +823,12 @@ async function openCompleteModal() {
     const porcentajeMerma = cantidadEntrada > 0 ? (merma / cantidadEntrada) * 100 : 0;
     mermaDisplay.classList.toggle('high', porcentajeMerma > 10);
 
+    // Cambiar estado visual si merma alta
+    const workScreenMain = document.getElementById('work-screen-main');
+    if (workScreenMain) {
+      workScreenMain.classList.toggle('estado-merma-alta', porcentajeMerma > 10);
+    }
+
     // Mostrar/ocultar campos de motivo según merma
     document.getElementById('merma-motivo-container').style.display = showMerma ? 'block' : 'none';
     document.getElementById('merma-observacion-container').style.display = showMerma ? 'block' : 'none';
@@ -745,12 +846,29 @@ async function openCompleteModal() {
   openModal('complete');
 }
 
+// Interceptar el botón de completar para mostrar alerta si merma alta
+async function handleCompleteWithAlert() {
+  const cantidadEntrada = currentOTEstacion.cantidad_entrada || 0;
+  const cantidadSalida = parseInt(document.getElementById('complete-qty-salida').value) || 0;
+  const merma = Math.max(0, cantidadEntrada - cantidadSalida);
+  const porcentajeMerma = cantidadEntrada > 0 ? (merma / cantidadEntrada) * 100 : 0;
+
+  // Si merma > 10%, mostrar alerta primero
+  if (porcentajeMerma > 10) {
+    await showMermaAlert(porcentajeMerma);
+  }
+
+  // Continuar con la confirmación
+  confirmComplete();
+}
+
 async function confirmComplete() {
   const cantidadSalida = parseInt(document.getElementById('complete-qty-salida').value) || 0;
   const cantidadMerma = parseInt(document.getElementById('complete-qty-merma').value) || 0;
   const notas = document.getElementById('complete-notes').value;
   const motivoMermaId = document.getElementById('complete-motivo-merma').value || null;
   const obsMerma = document.getElementById('complete-obs-merma').value || null;
+  const cantidadEntrada = currentOTEstacion.cantidad_entrada || 0;
 
   if (cantidadSalida < 0 || cantidadMerma < 0) {
     showToast('Las cantidades no pueden ser negativas', 'error');
@@ -778,17 +896,61 @@ async function confirmComplete() {
     closeModal('complete');
     stopTimer();
 
+    // Calcular tiempo y eficiencia para mostrar
+    const tiempoTotal = timerPausedTime + (timerStartTime ? Date.now() - timerStartTime : 0);
+    const tiempoTotalConPausas = tiempoTotal + tiempoEnPausas;
+    const eficiencia = tiempoTotalConPausas > 0 ? Math.round((tiempoTotal / tiempoTotalConPausas) * 100) : 100;
+
+    // Mostrar overlay de éxito
+    showSuccessOverlay(tiempoTotal, eficiencia, cantidadSalida);
+
     currentOTEstacion.estado = 'completada';
     currentOTEstacion.cantidad_salida = cantidadSalida;
     currentOTEstacion.cantidad_merma = cantidadMerma;
-
-    showToast('Estación completada exitosamente', 'success');
-    updateWorkScreen();
 
   } catch (err) {
     console.error('[App] Error completando:', err);
     showToast('Error al completar estación', 'error');
   }
+}
+
+function showSuccessOverlay(tiempoMs, eficiencia, unidades) {
+  const overlay = document.getElementById('success-overlay');
+
+  // Formatear tiempo
+  const hours = Math.floor(tiempoMs / 3600000);
+  const minutes = Math.floor((tiempoMs % 3600000) / 60000);
+  const seconds = Math.floor((tiempoMs % 60000) / 1000);
+  const tiempoStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+  document.getElementById('success-tiempo').textContent = tiempoStr;
+  document.getElementById('success-eficiencia').textContent = `${eficiencia}%`;
+  document.getElementById('success-salida').textContent = unidades.toLocaleString();
+
+  overlay.classList.add('show');
+
+  // Ocultar después de 3 segundos y volver a lista
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    showScreen('otList');
+    loadOTList();
+  }, 3500);
+}
+
+function showMermaAlert(porcentaje) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('merma-alert');
+    document.getElementById('merma-alert-percent').textContent = `${porcentaje.toFixed(1)}%`;
+    overlay.classList.add('show');
+
+    const btn = document.getElementById('btn-merma-alert-continue');
+    const handler = () => {
+      overlay.classList.remove('show');
+      btn.removeEventListener('click', handler);
+      resolve();
+    };
+    btn.addEventListener('click', handler);
+  });
 }
 
 // ========== MODALES ==========

@@ -474,6 +474,51 @@ body {
   50% { opacity: 0.5; }
 }
 
+/* Efficiency Display */
+.efficiency-display {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 25px;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.efficiency-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.efficiency-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.efficiency-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Monaco', monospace;
+  color: var(--success);
+}
+
+.efficiency-value.pausas {
+  color: var(--warning);
+}
+
+.efficiency-value.eficiencia {
+  color: var(--primary);
+  font-size: 1.3rem;
+}
+
+.efficiency-value.eficiencia.low {
+  color: var(--danger);
+}
+
 /* Quantity Display */
 .quantity-display {
   display: flex;
@@ -722,7 +767,7 @@ body {
 
 /* ========== MERMA CALCULADA ========== */
 .merma-calc-container {
-  background: linear-gradient(135deg, #2d1f3d 0%, #1a1a2e 100%);
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
   border: 2px solid var(--warning);
   border-radius: 12px;
   padding: 15px 20px;
@@ -732,7 +777,7 @@ body {
 
 .merma-calc-header {
   font-size: 0.85rem;
-  color: var(--warning);
+  color: #b45309;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -749,29 +794,29 @@ body {
 
 .merma-formula {
   font-size: 1rem;
-  color: var(--text-secondary);
+  color: #6b7280;
 }
 
 .merma-formula span {
-  color: var(--text-primary);
-  font-weight: 500;
+  color: #1f2937;
+  font-weight: 600;
 }
 
 .merma-result {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--warning);
+  color: #b45309;
   min-width: 80px;
 }
 
 .merma-result.high {
-  color: var(--danger);
+  color: #dc2626;
   animation: pulse-danger 1s ease-in-out infinite;
 }
 
 .merma-unit {
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #6b7280;
 }
 
 @keyframes pulse-danger {
@@ -836,6 +881,264 @@ body {
 .toast.warning {
   background: var(--warning);
   color: white;
+}
+
+/* ========== BARRA PROGRESO OT ========== */
+.ot-progress-bar {
+  background: var(--bg-card);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+#progress-text {
+  color: var(--text-secondary);
+}
+
+#progress-percent {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* ========== ESTADOS TRABAJO (colores fondo) ========== */
+.work-screen.estado-pendiente {
+  background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, var(--bg-dark) 100%);
+}
+
+.work-screen.estado-en-proceso {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.15) 0%, var(--bg-dark) 100%);
+  animation: pulse-green 3s ease-in-out infinite;
+}
+
+.work-screen.estado-pausado {
+  background: linear-gradient(135deg, rgba(237, 137, 54, 0.2) 0%, var(--bg-dark) 100%);
+  animation: pulse-orange 2s ease-in-out infinite;
+}
+
+.work-screen.estado-merma-alta {
+  background: linear-gradient(135deg, rgba(245, 101, 101, 0.2) 0%, var(--bg-dark) 100%);
+}
+
+@keyframes pulse-green {
+  0%, 100% { background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, var(--bg-dark) 100%); }
+  50% { background: linear-gradient(135deg, rgba(72, 187, 120, 0.2) 0%, var(--bg-dark) 100%); }
+}
+
+@keyframes pulse-orange {
+  0%, 100% { background: linear-gradient(135deg, rgba(237, 137, 54, 0.15) 0%, var(--bg-dark) 100%); }
+  50% { background: linear-gradient(135deg, rgba(237, 137, 54, 0.3) 0%, var(--bg-dark) 100%); }
+}
+
+/* ========== OVERLAY ÉXITO ========== */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.success-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.success-content {
+  text-align: center;
+  animation: success-pop 0.5s ease;
+}
+
+@keyframes success-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-checkmark {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 30px;
+  color: var(--success);
+}
+
+.success-checkmark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.success-checkmark circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: stroke-circle 0.6s ease forwards;
+}
+
+.success-checkmark path {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke-check 0.3s ease 0.6s forwards;
+}
+
+@keyframes stroke-circle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes stroke-check {
+  to { stroke-dashoffset: 0; }
+}
+
+.success-title {
+  font-size: 2.5rem;
+  color: var(--success);
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.success-stats {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+.success-stat {
+  text-align: center;
+}
+
+.success-stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.success-stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* ========== ALERTA MERMA ALTA ========== */
+.merma-alert-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3500;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.merma-alert-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.merma-alert-content {
+  background: linear-gradient(135deg, #4a1515 0%, #2d0a0a 100%);
+  border: 3px solid var(--danger);
+  border-radius: 20px;
+  padding: 40px 60px;
+  text-align: center;
+  animation: shake-alert 0.5s ease;
+}
+
+@keyframes shake-alert {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+.merma-alert-icon {
+  font-size: 5rem;
+  margin-bottom: 20px;
+  animation: pulse-icon 1s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.merma-alert-title {
+  font-size: 2rem;
+  color: var(--danger);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+.merma-alert-text {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.merma-alert-value {
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--danger);
+  font-family: 'SF Mono', 'Monaco', monospace;
+  margin-bottom: 20px;
+}
+
+.merma-alert-warning {
+  color: var(--warning);
+  font-size: 1rem;
+  margin-bottom: 30px;
+}
+
+.merma-alert-btn {
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: var(--danger);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.merma-alert-btn:hover {
+  background: #c53030;
+  transform: scale(1.05);
 }
 
 /* ========== RESPONSIVE ========== */

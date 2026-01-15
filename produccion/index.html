@@ -85,6 +85,17 @@
 
   <!-- ========== PANTALLA TRABAJO ========== -->
   <div id="work-screen" class="hidden">
+    <!-- Barra de progreso OT -->
+    <div id="ot-progress-bar" class="ot-progress-bar">
+      <div class="progress-info">
+        <span id="progress-text">Estación 1 de 5</span>
+        <span id="progress-percent">20%</span>
+      </div>
+      <div class="progress-track">
+        <div id="progress-fill" class="progress-fill" style="width: 20%"></div>
+      </div>
+    </div>
+
     <header class="app-header">
       <div class="header-left">
         <div class="header-logo">FULLEMPAQUES</div>
@@ -102,7 +113,7 @@
       </div>
     </header>
 
-    <div class="work-screen">
+    <div id="work-screen-main" class="work-screen estado-pendiente">
       <aside class="work-sidebar">
         <div class="sidebar-section">
           <div class="sidebar-label">Orden de Trabajo</div>
@@ -134,6 +145,22 @@
         <div class="timer-container">
           <div id="timer-status" class="timer-status">Listo para iniciar</div>
           <div id="timer-display" class="timer-display">00:00:00</div>
+
+          <!-- Eficiencia en tiempo real -->
+          <div id="efficiency-display" class="efficiency-display" style="display: none;">
+            <div class="efficiency-item">
+              <span class="efficiency-label">Efectivo</span>
+              <span class="efficiency-value" id="tiempo-efectivo">00:00:00</span>
+            </div>
+            <div class="efficiency-item">
+              <span class="efficiency-label">Pausas</span>
+              <span class="efficiency-value pausas" id="tiempo-pausas">00:00:00</span>
+            </div>
+            <div class="efficiency-item">
+              <span class="efficiency-label">Eficiencia</span>
+              <span class="efficiency-value eficiencia" id="porcentaje-eficiencia">100%</span>
+            </div>
+          </div>
 
           <div class="quantity-display">
             <div class="quantity-item">
@@ -248,6 +275,45 @@
 
   <!-- Toast notifications -->
   <div id="toast" class="toast"></div>
+
+  <!-- ========== OVERLAY ÉXITO ========== -->
+  <div id="success-overlay" class="success-overlay">
+    <div class="success-content">
+      <div class="success-checkmark">
+        <svg viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="25" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path fill="none" stroke="currentColor" stroke-width="3" d="M14 27l7 7 16-16"/>
+        </svg>
+      </div>
+      <h2 class="success-title">¡Estación Completada!</h2>
+      <div class="success-stats">
+        <div class="success-stat">
+          <span class="success-stat-value" id="success-tiempo">00:45:30</span>
+          <span class="success-stat-label">Tiempo Total</span>
+        </div>
+        <div class="success-stat">
+          <span class="success-stat-value" id="success-eficiencia">95%</span>
+          <span class="success-stat-label">Eficiencia</span>
+        </div>
+        <div class="success-stat">
+          <span class="success-stat-value" id="success-salida">950</span>
+          <span class="success-stat-label">Unidades</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== ALERTA MERMA ALTA ========== -->
+  <div id="merma-alert" class="merma-alert-overlay">
+    <div class="merma-alert-content">
+      <div class="merma-alert-icon">⚠️</div>
+      <h2 class="merma-alert-title">¡MERMA ALTA DETECTADA!</h2>
+      <p class="merma-alert-text">La merma supera el <strong>10%</strong> del material de entrada</p>
+      <div class="merma-alert-value" id="merma-alert-percent">15.5%</div>
+      <p class="merma-alert-warning">Asegúrate de seleccionar el motivo correcto</p>
+      <button class="merma-alert-btn" id="btn-merma-alert-continue">Entendido, Continuar</button>
+    </div>
+  </div>
 
   <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
