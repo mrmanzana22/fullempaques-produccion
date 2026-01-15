@@ -10,7 +10,11 @@ const STATIC_ASSETS = [
   '/produccion/offline.html',
   '/produccion/manifest.json',
   '/produccion/icons/icon-192.svg',
-  '/produccion/icons/icon-512.svg'
+  '/produccion/icons/icon-512.svg',
+  '/produccion/jefe.html',
+  '/produccion/jefe.js',
+  '/produccion/reportes.html',
+  '/produccion/reportes.js'
 ];
 
 // Instalación - cachear assets estáticos
