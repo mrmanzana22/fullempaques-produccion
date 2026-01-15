@@ -129,6 +129,7 @@ function initEvidenciaCapture() {
           previewContainer.style.display = 'block';
           btnCapture.style.display = 'none';
           
+          console.log('[App] Foto capturada, tamaño:', compressedBlob.size, 'bytes');
           showToast('Foto capturada', 'success');
         } catch (err) {
           console.error('[App] Error procesando imagen:', err);
@@ -205,10 +206,18 @@ async function comprimirImagen(file, maxWidth = 1920, quality = 0.75) {
 
 // Subir evidencia a Supabase Storage
 async function subirEvidencia(otEstacionId) {
-  if (!fotoEvidenciaFile) return null;
+  if (!fotoEvidenciaFile) {
+    console.log('[App] No hay foto para subir');
+    return null;
+  }
+
+  console.log('[App] Iniciando subida de evidencia...');
+  console.log('[App] ID estación:', otEstacionId);
+  console.log('[App] Tamaño archivo:', fotoEvidenciaFile.size, 'bytes');
 
   try {
     const fileName = `${otEstacionId}/${Date.now()}.jpg`;
+    console.log('[App] Nombre archivo:', fileName);
     
     const { data, error } = await db.storage
       .from('mermas-evidencia')
@@ -217,18 +226,24 @@ async function subirEvidencia(otEstacionId) {
         upsert: false
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error('[App] Error de Supabase Storage:', error);
+      showToast(`Error: ${error.message}`, 'error');
+      throw error;
+    }
+
+    console.log('[App] Upload exitoso:', data);
 
     // Obtener URL pública
     const { data: urlData } = db.storage
       .from('mermas-evidencia')
       .getPublicUrl(fileName);
 
-    console.log('[App] Evidencia subida:', urlData.publicUrl);
+    console.log('[App] URL pública:', urlData.publicUrl);
     return urlData.publicUrl;
   } catch (err) {
     console.error('[App] Error subiendo evidencia:', err);
-    showToast('Error al subir foto', 'warning');
+    showToast(`Error subiendo: ${err.message || 'desconocido'}`, 'error');
     return null;
   }
 }
@@ -1021,6 +1036,7 @@ async function confirmComplete() {
     if (cantidadMerma > 0 && fotoEvidenciaFile) {
       showToast('Subiendo evidencia...', 'warning');
       evidenciaUrl = await subirEvidencia(currentOTEstacion.id);
+      console.log('[App] URL evidencia obtenida:', evidenciaUrl);
     }
   }
 
@@ -1038,10 +1054,17 @@ async function confirmComplete() {
 
     // Guardar URL de evidencia si existe
     if (evidenciaUrl) {
-      await db
+      console.log('[App] Guardando URL en BD:', evidenciaUrl);
+      const { error: updateError } = await db
         .from('ot_estaciones')
         .update({ evidencia_merma_url: evidenciaUrl })
         .eq('id', currentOTEstacion.id);
+      
+      if (updateError) {
+        console.error('[App] Error guardando URL:', updateError);
+      } else {
+        console.log('[App] URL guardada exitosamente');
+      }
     }
 
     closeModal('complete');
