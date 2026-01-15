@@ -253,7 +253,7 @@ async function loadOTList(filter = 'todas') {
           estado,
           cantidad_entrada,
           cantidad_salida,
-          estaciones (nombre, orden_flujo)
+          estaciones (nombre, orden_flujo, tipo_estacion)
         )
       `)
       .order('created_at', { ascending: false });
@@ -361,7 +361,7 @@ async function openWorkScreen(otId) {
         *,
         ot_estaciones (
           *,
-          estaciones (id, nombre, orden_flujo)
+          estaciones (id, nombre, orden_flujo, tipo_estacion)
         )
       `)
       .eq('id', otId)
@@ -432,16 +432,28 @@ function updateWorkScreen() {
   document.getElementById('work-estacion-anterior').textContent =
     anterior ? anterior.estaciones?.nombre : '-';
 
-  // Cantidades
-  document.getElementById('qty-entrada').textContent = currentOTEstacion.cantidad_entrada || 0;
-  document.getElementById('qty-salida').textContent = currentOTEstacion.cantidad_salida || 0;
-  document.getElementById('qty-merma').textContent = currentOTEstacion.cantidad_merma || 0;
+  // Verificar tipo de estación (material vs tiempo)
+  const tipoEstacion = currentOTEstacion.estaciones?.tipo_estacion || 'material';
+  const quantitySection = document.getElementById('quantity-section');
 
-  // Unidad de medida
-  const unidad = currentOT.unidad_medida || 'unidades';
-  document.getElementById('unidad-entrada').textContent = `(${unidad})`;
-  document.getElementById('unidad-salida').textContent = `(${unidad})`;
-  document.getElementById('unidad-merma').textContent = `(${unidad})`;
+  if (tipoEstacion === 'tiempo') {
+    // Estaciones de tiempo (diseño, revisión): ocultar cantidades
+    quantitySection.style.display = 'none';
+  } else {
+    // Estaciones de material: mostrar cantidades
+    quantitySection.style.display = 'flex';
+
+    // Cantidades
+    document.getElementById('qty-entrada').textContent = currentOTEstacion.cantidad_entrada || 0;
+    document.getElementById('qty-salida').textContent = currentOTEstacion.cantidad_salida || 0;
+    document.getElementById('qty-merma').textContent = currentOTEstacion.cantidad_merma || 0;
+
+    // Unidad de medida
+    const unidad = currentOT.unidad_medida || 'unidades';
+    document.getElementById('unidad-entrada').textContent = `(${unidad})`;
+    document.getElementById('unidad-salida').textContent = `(${unidad})`;
+    document.getElementById('unidad-merma').textContent = `(${unidad})`;
+  }
 
   // Actualizar barra de progreso
   updateProgressBar();
@@ -633,8 +645,16 @@ function calcularTiempoAcumulado() {
 
 // ========== ACCIONES ==========
 function openEntradaModal() {
-  document.getElementById('entrada-qty').value = currentOT.cantidad_solicitada || '';
-  openModal('entrada');
+  const tipoEstacion = currentOTEstacion.estaciones?.tipo_estacion || 'material';
+
+  if (tipoEstacion === 'tiempo') {
+    // Estaciones de tiempo: iniciar directamente sin pedir cantidad
+    iniciarEstacionTiempo();
+  } else {
+    // Estaciones de material: pedir cantidad de entrada
+    document.getElementById('entrada-qty').value = currentOT.cantidad_solicitada || '';
+    openModal('entrada');
+  }
 }
 
 async function confirmEntrada() {
@@ -673,6 +693,38 @@ async function confirmEntrada() {
   } catch (err) {
     console.error('[App] Error iniciando estación:', err);
     showToast('Error al iniciar estación', 'error');
+  }
+}
+
+// Iniciar estación de tipo tiempo (sin cantidad de entrada)
+async function iniciarEstacionTiempo() {
+  try {
+    const { data, error } = await db.rpc('iniciar_estacion', {
+      p_orden_trabajo_id: currentOT.id,
+      p_estacion_id: currentOTEstacion.estaciones.id,
+      p_operador_id: currentOperator.id,
+      p_cantidad_entrada: 0  // Sin cantidad para estaciones de tiempo
+    });
+
+    if (error) throw error;
+
+    showToast('Trabajo iniciado', 'success');
+
+    // Actualizar estado local
+    currentOTEstacion.estado = 'en_proceso';
+    currentOTEstacion.cantidad_entrada = 0;
+    currentOTEstacion.fecha_inicio = new Date().toISOString();
+
+    timerStartTime = Date.now();
+    timerPausedTime = 0;
+    tiempoEnPausas = 0;
+    pausaStartTime = null;
+    startTimer();
+    updateWorkScreen();
+
+  } catch (err) {
+    console.error('[App] Error iniciando estación tiempo:', err);
+    showToast('Error al iniciar', 'error');
   }
 }
 
@@ -774,6 +826,9 @@ async function reanudarEstacion() {
 }
 
 async function openCompleteModal() {
+  const tipoEstacion = currentOTEstacion.estaciones?.tipo_estacion || 'material';
+
+  // Resetear campos
   document.getElementById('complete-qty-salida').value = currentOTEstacion.cantidad_entrada || '';
   document.getElementById('complete-qty-merma').value = '0';
   document.getElementById('complete-notes').value = '';
@@ -782,6 +837,17 @@ async function openCompleteModal() {
   // Ocultar campos de motivo inicialmente
   document.getElementById('merma-motivo-container').style.display = 'none';
   document.getElementById('merma-observacion-container').style.display = 'none';
+
+  // Para estaciones de tiempo, ocultar campos de cantidad
+  const salidaGroup = document.getElementById('complete-qty-salida').closest('.form-group');
+  const mermaCalcContainer = document.getElementById('merma-calc-container');
+
+  if (tipoEstacion === 'tiempo') {
+    salidaGroup.style.display = 'none';
+    mermaCalcContainer.style.display = 'none';
+  } else {
+    salidaGroup.style.display = 'block';
+  }
 
   // Cargar motivos de merma
   try {
@@ -869,22 +935,31 @@ async function handleCompleteWithAlert() {
 }
 
 async function confirmComplete() {
-  const cantidadSalida = parseInt(document.getElementById('complete-qty-salida').value) || 0;
-  const cantidadMerma = parseInt(document.getElementById('complete-qty-merma').value) || 0;
+  const tipoEstacion = currentOTEstacion.estaciones?.tipo_estacion || 'material';
   const notas = document.getElementById('complete-notes').value;
-  const motivoMermaId = document.getElementById('complete-motivo-merma').value || null;
-  const obsMerma = document.getElementById('complete-obs-merma').value || null;
-  const cantidadEntrada = currentOTEstacion.cantidad_entrada || 0;
 
-  if (cantidadSalida < 0 || cantidadMerma < 0) {
-    showToast('Las cantidades no pueden ser negativas', 'error');
-    return;
-  }
+  let cantidadSalida = 0;
+  let cantidadMerma = 0;
+  let motivoMermaId = null;
+  let obsMerma = null;
 
-  // Validar que si hay merma, se seleccione un motivo
-  if (cantidadMerma > 0 && !motivoMermaId) {
-    showToast('Selecciona un motivo de merma', 'error');
-    return;
+  // Solo procesar cantidades para estaciones de material
+  if (tipoEstacion === 'material') {
+    cantidadSalida = parseInt(document.getElementById('complete-qty-salida').value) || 0;
+    cantidadMerma = parseInt(document.getElementById('complete-qty-merma').value) || 0;
+    motivoMermaId = document.getElementById('complete-motivo-merma').value || null;
+    obsMerma = document.getElementById('complete-obs-merma').value || null;
+
+    if (cantidadSalida < 0 || cantidadMerma < 0) {
+      showToast('Las cantidades no pueden ser negativas', 'error');
+      return;
+    }
+
+    // Validar que si hay merma, se seleccione un motivo
+    if (cantidadMerma > 0 && !motivoMermaId) {
+      showToast('Selecciona un motivo de merma', 'error');
+      return;
+    }
   }
 
   try {
@@ -922,6 +997,7 @@ async function confirmComplete() {
 
 function showSuccessOverlay(tiempoMs, eficiencia, cantidad) {
   const overlay = document.getElementById('success-overlay');
+  const tipoEstacion = currentOTEstacion.estaciones?.tipo_estacion || 'material';
 
   // Formatear tiempo
   const hours = Math.floor(tiempoMs / 3600000);
@@ -929,12 +1005,19 @@ function showSuccessOverlay(tiempoMs, eficiencia, cantidad) {
   const seconds = Math.floor((tiempoMs % 60000) / 1000);
   const tiempoStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-  // Obtener unidad de medida
-  const unidad = currentOT?.unidad_medida || 'unidades';
-
   document.getElementById('success-tiempo').textContent = tiempoStr;
   document.getElementById('success-eficiencia').textContent = `${eficiencia}%`;
-  document.getElementById('success-salida').textContent = `${cantidad.toLocaleString()} ${unidad}`;
+
+  // Para estaciones de tiempo, mostrar "Completado" en vez de cantidad
+  if (tipoEstacion === 'tiempo') {
+    document.getElementById('success-salida').textContent = '✓';
+    document.querySelector('#success-overlay .success-stat:last-child .success-stat-label').textContent = 'Estado';
+  } else {
+    // Obtener unidad de medida
+    const unidad = currentOT?.unidad_medida || 'unidades';
+    document.getElementById('success-salida').textContent = `${cantidad.toLocaleString()} ${unidad}`;
+    document.querySelector('#success-overlay .success-stat:last-child .success-stat-label').textContent = 'Unidades';
+  }
 
   overlay.classList.add('show');
 
