@@ -93,7 +93,7 @@ async function verifyPin(pin) {
     const { data, error } = await supabase
       .from('operadores')
       .select('*')
-      .eq('pin', pin)
+      .eq('pin_hash', pin)
       .eq('activo', true)
       .single();
 
