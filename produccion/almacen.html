@@ -6,7 +6,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#2d5016">
-  <title>Almacén - FULLEMPAQUES</title>
+  <title>Almacen - FULLEMPAQUES</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     :root {
@@ -126,8 +126,7 @@
     }
     
     .ot-card.alistado {
-      border-left: 4px solid var(--success);
-      opacity: 0.7;
+      border-left: 4px solid #28a745;
     }
     
     .badge-pendiente {
@@ -213,6 +212,69 @@
       border-color: var(--almacen-primary);
     }
     
+    /* Tabs */
+    .tabs-container {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tab-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      background: transparent;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+    }
+    
+    .tab-btn:hover {
+      color: var(--almacen-primary);
+    }
+    
+    .tab-btn.active {
+      color: var(--almacen-primary);
+      border-bottom-color: var(--almacen-primary);
+    }
+    
+    .tab-count {
+      background: var(--almacen-light);
+      color: var(--almacen-primary);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      margin-left: 6px;
+    }
+    
+    .historial-item {
+      background: white;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border-left: 4px solid #28a745;
+    }
+    
+    .historial-item .ot-numero {
+      font-weight: 700;
+      color: var(--almacen-primary);
+    }
+    
+    .historial-item .ot-fecha {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .historial-item .ot-cliente {
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+    
     /* Mobile responsive */
     @media (max-width: 768px) {
       .almacen-theme .jefe-container {
@@ -231,7 +293,7 @@
   <!-- LOGIN -->
   <div id="login-screen" class="login-screen">
     <div class="login-logo">FULLEMPAQUES</div>
-    <div class="login-subtitle">Almacén - Alistamiento</div>
+    <div class="login-subtitle">Almacen - Alistamiento</div>
     
     <div class="pin-display">
       <div class="pin-dot" data-index="0"></div>
@@ -262,13 +324,12 @@
   <div id="almacen-screen" class="hidden">
     <header class="app-header">
       <div class="header-left">
-        <div class="header-logo">ALMACÉN</div>
+        <div class="header-logo">ALMACEN</div>
         <div class="header-operator">
           <span id="operator-name">Operador</span>
         </div>
       </div>
       <div class="header-right">
-        <span id="ot-count" class="badge">0</span> pendientes
         <button id="btn-logout" class="btn-logout">Salir</button>
       </div>
     </header>
@@ -277,9 +338,19 @@
       <!-- Lista de OTs -->
       <div class="jefe-list-panel">
         <div class="panel-header">
-          <h2>OTs por Alistar</h2>
-          <button onclick="loadPendingOTs()" class="btn-refresh">↻</button>
+          <h2>Alistamiento</h2>
+          <button onclick="loadCurrentTab()" class="btn-refresh">↻</button>
         </div>
+        
+        <div class="tabs-container">
+          <button class="tab-btn active" data-tab="pendientes" onclick="switchTab('pendientes')">
+            Pendientes <span id="count-pendientes" class="tab-count">0</span>
+          </button>
+          <button class="tab-btn" data-tab="historial" onclick="switchTab('historial')">
+            Historial <span id="count-historial" class="tab-count">0</span>
+          </button>
+        </div>
+        
         <div id="ot-list" class="ot-list">
           <div class="loading-spinner"><div class="spinner"></div></div>
         </div>
@@ -299,7 +370,7 @@
           </div>
           
           <div class="detail-section">
-            <h3>Información General</h3>
+            <h3>Informacion General</h3>
             <div class="detail-grid">
               <div class="detail-item">
                 <span class="label">Cliente</span>
@@ -344,7 +415,7 @@
             </div>
           </div>
           
-          <div class="detail-section">
+          <div id="checklist-section" class="detail-section">
             <h3>Checklist de Alistamiento</h3>
             <div id="checklist-container">
               <div class="checklist-item" onclick="toggleCheck(this)">
@@ -361,14 +432,33 @@
               </div>
               <div class="checklist-item" onclick="toggleCheck(this)">
                 <input type="checkbox" id="check-ubicacion">
-                <label for="check-ubicacion">Material ubicado en zona de producción</label>
+                <label for="check-ubicacion">Material ubicado en zona de produccion</label>
               </div>
             </div>
           </div>
           
-          <div class="detail-section">
+          <div id="obs-section" class="detail-section">
             <h3>Observaciones</h3>
             <textarea id="obs-alistamiento" class="obs-textarea" placeholder="Observaciones del alistamiento (opcional)..."></textarea>
+          </div>
+          
+          <!-- Info de historial (solo visible en historial) -->
+          <div id="historial-info" class="detail-section hidden">
+            <h3>Informacion del Alistamiento</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="label">Fecha</span>
+                <span class="value" id="hist-fecha">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Alistado por</span>
+                <span class="value" id="hist-operador">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Observaciones</span>
+                <span class="value" id="hist-obs">-</span>
+              </div>
+            </div>
           </div>
           
           <button id="btn-alistar" class="btn-alistar" onclick="confirmarAlistamiento()">
@@ -379,11 +469,11 @@
     </div>
   </div>
   
-  <!-- Modal Confirmación -->
+  <!-- Modal Confirmacion -->
   <div id="modal-confirm" class="modal-overlay">
     <div class="modal">
       <h2 class="modal-title">Confirmar Alistamiento</h2>
-      <p id="confirm-message">¿Confirmas que los materiales están listos para producción?</p>
+      <p id="confirm-message">Confirmas que los materiales estan listos para produccion?</p>
       <div class="modal-actions">
         <button class="btn-modal cancel" onclick="closeModal()">Cancelar</button>
         <button class="btn-modal success" id="btn-confirm-alistar">Confirmar</button>

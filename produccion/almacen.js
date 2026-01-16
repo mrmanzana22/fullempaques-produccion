@@ -1,7 +1,7 @@
-// FULLEMPAQUES - Almacén Alistamiento
-// Control de alistamiento de materiales para producción
+// FULLEMPAQUES - Almacen Alistamiento
+// Control de alistamiento de materiales para produccion
 
-// Configuración Supabase
+// Configuracion Supabase
 const SUPABASE_URL = 'https://sjfhtopclyxbwzhslhwf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqZmh0b3BjbHl4Ynd6aHNsaHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzEyMTcsImV4cCI6MjA3NjU0NzIxN30.OWaCsPD2khL9PDMG8ZwbQkJNHe4U8bwx595cWWIxlp8';
 
@@ -11,8 +11,10 @@ const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentOperador = null;
 let selectedOT = null;
 let otsList = [];
+let historialList = [];
+let currentTab = 'pendientes';
 
-// ==================== INICIALIZACIÓN ====================
+// ==================== INICIALIZACION ====================
 
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
@@ -99,7 +101,7 @@ async function verifyPin(pin) {
 
   } catch (err) {
     console.error('Error verificando PIN:', err);
-    errorDiv.textContent = 'Error de conexión';
+    errorDiv.textContent = 'Error de conexion';
     errorDiv.style.display = 'block';
   }
 }
@@ -114,6 +116,7 @@ function showAlmacenScreen() {
   document.getElementById('btn-logout').addEventListener('click', logout);
   
   loadPendingOTs();
+  loadHistorial();
 }
 
 function logout() {
@@ -124,14 +127,47 @@ function logout() {
   document.getElementById('login-screen').classList.remove('hidden');
 }
 
-// ==================== CARGAR OTs ====================
+// ==================== TABS ====================
+
+function switchTab(tab) {
+  currentTab = tab;
+  
+  // Actualizar botones
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  
+  // Limpiar seleccion
+  selectedOT = null;
+  document.getElementById('detail-empty').classList.remove('hidden');
+  document.getElementById('detail-content').classList.add('hidden');
+  
+  // Renderizar lista correspondiente
+  if (tab === 'pendientes') {
+    renderOTsList();
+  } else {
+    renderHistorial();
+  }
+}
+
+function loadCurrentTab() {
+  if (currentTab === 'pendientes') {
+    loadPendingOTs();
+  } else {
+    loadHistorial();
+  }
+}
+
+// ==================== CARGAR OTs PENDIENTES ====================
 
 async function loadPendingOTs() {
   const listContainer = document.getElementById('ot-list');
-  listContainer.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+  if (currentTab === 'pendientes') {
+    listContainer.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+  }
 
   try {
-    // Obtener el ID de la estación ALM
+    // Obtener el ID de la estacion ALM
     const { data: estacionAlm } = await db
       .from('estaciones')
       .select('id')
@@ -139,10 +175,10 @@ async function loadPendingOTs() {
       .single();
 
     if (!estacionAlm) {
-      throw new Error('Estación ALM no encontrada');
+      throw new Error('Estacion ALM no encontrada');
     }
 
-    // Cargar OTs en estación ALM con estado asignada o pendiente
+    // Cargar OTs en estacion ALM con estado asignada o pendiente
     const { data, error } = await db
       .from('ordenes_trabajo')
       .select('*')
@@ -155,17 +191,22 @@ async function loadPendingOTs() {
     if (error) throw error;
 
     otsList = data || [];
-    renderOTsList();
-    document.getElementById('ot-count').textContent = otsList.length;
+    document.getElementById('count-pendientes').textContent = otsList.length;
+    
+    if (currentTab === 'pendientes') {
+      renderOTsList();
+    }
 
   } catch (err) {
     console.error('Error cargando OTs:', err);
-    listContainer.innerHTML = `
-      <div style="text-align: center; padding: 20px; color: var(--text-secondary);">
-        Error al cargar OTs<br>
-        <button onclick="loadPendingOTs()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Reintentar</button>
-      </div>
-    `;
+    if (currentTab === 'pendientes') {
+      listContainer.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: var(--text-secondary);">
+          Error al cargar OTs<br>
+          <button onclick="loadPendingOTs()" style="margin-top: 10px; padding: 8px 16px; cursor: pointer;">Reintentar</button>
+        </div>
+      `;
+    }
   }
 }
 
@@ -190,7 +231,7 @@ function renderOTsList() {
         <span class="badge-pendiente">Por alistar</span>
       </div>
       <div class="ot-cliente">${ot.cliente_nombre || 'Sin cliente'}</div>
-      <div class="ot-producto">${ot.producto_descripcion || 'Sin descripción'}</div>
+      <div class="ot-producto">${ot.producto_descripcion || 'Sin descripcion'}</div>
       <div class="ot-material">
         📦 ${ot.material_nombre || 'Material'} - ${formatNumber(ot.cantidad_pliegos || 0)} pliegos
       </div>
@@ -198,15 +239,118 @@ function renderOTsList() {
   `).join('');
 }
 
-// ==================== SELECCIÓN Y DETALLE ====================
+// ==================== CARGAR HISTORIAL ====================
+
+async function loadHistorial() {
+  try {
+    // Cargar alistamientos con datos de OT y operador
+    const { data, error } = await db
+      .from('ot_alistamiento')
+      .select(`
+        *,
+        ordenes_trabajo:orden_trabajo_id (
+          numero_ot,
+          cliente_nombre,
+          producto_descripcion,
+          material_nombre,
+          cantidad_pliegos,
+          calibre,
+          medida_corte,
+          cantidad_solicitada,
+          prioridad
+        ),
+        operadores:operador_id (
+          nombre
+        )
+      `)
+      .order('fecha_alistamiento', { ascending: false })
+      .limit(50);
+
+    if (error) throw error;
+
+    historialList = data || [];
+    document.getElementById('count-historial').textContent = historialList.length;
+    
+    if (currentTab === 'historial') {
+      renderHistorial();
+    }
+
+  } catch (err) {
+    console.error('Error cargando historial:', err);
+  }
+}
+
+function renderHistorial() {
+  const listContainer = document.getElementById('ot-list');
+
+  if (historialList.length === 0) {
+    listContainer.innerHTML = `
+      <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+        <div style="font-size: 3rem; margin-bottom: 10px;">📋</div>
+        No hay historial de alistamientos
+      </div>
+    `;
+    return;
+  }
+
+  listContainer.innerHTML = historialList.map(item => `
+    <div class="ot-card alistado ${selectedOT?.id === item.id ? 'selected' : ''}"
+         onclick="selectHistorialItem('${item.id}')">
+      <div class="ot-card-header">
+        <span class="ot-numero">${item.ordenes_trabajo?.numero_ot || 'OT'}</span>
+        <span class="badge-alistado">Alistado</span>
+      </div>
+      <div class="ot-cliente">${item.ordenes_trabajo?.cliente_nombre || 'Sin cliente'}</div>
+      <div class="ot-fecha">${formatDate(item.fecha_alistamiento)}</div>
+    </div>
+  `).join('');
+}
+
+// ==================== SELECCION Y DETALLE ====================
 
 function selectOT(id) {
   selectedOT = otsList.find(ot => ot.id === id);
   if (!selectedOT) return;
+  selectedOT._isHistorial = false;
 
   renderOTsList();
   showOTDetail();
   resetChecklist();
+  
+  // Mostrar secciones de alistamiento
+  document.getElementById('checklist-section').classList.remove('hidden');
+  document.getElementById('obs-section').classList.remove('hidden');
+  document.getElementById('btn-alistar').classList.remove('hidden');
+  document.getElementById('historial-info').classList.add('hidden');
+}
+
+function selectHistorialItem(id) {
+  const item = historialList.find(h => h.id === id);
+  if (!item) return;
+  
+  selectedOT = {
+    ...item.ordenes_trabajo,
+    _isHistorial: true,
+    _historialData: item
+  };
+
+  renderHistorial();
+  showOTDetail();
+  
+  // Ocultar secciones de alistamiento, mostrar info historial
+  document.getElementById('checklist-section').classList.add('hidden');
+  document.getElementById('obs-section').classList.add('hidden');
+  document.getElementById('btn-alistar').classList.add('hidden');
+  document.getElementById('historial-info').classList.remove('hidden');
+  
+  // Llenar info de historial
+  document.getElementById('hist-fecha').textContent = formatDate(item.fecha_alistamiento);
+  document.getElementById('hist-operador').textContent = item.operadores?.nombre || '-';
+  document.getElementById('hist-obs').textContent = item.observaciones || 'Sin observaciones';
+  
+  // Cambiar badge
+  document.getElementById('detail-estado').className = 'badge-alistado';
+  document.getElementById('detail-estado').textContent = 'Alistado';
 }
 
 function showOTDetail() {
@@ -216,12 +360,12 @@ function showOTDetail() {
   document.getElementById('detail-content').classList.remove('hidden');
 
   // Info general
-  document.getElementById('detail-numero').textContent = selectedOT.numero_ot;
+  document.getElementById('detail-numero').textContent = selectedOT.numero_ot || 'OT';
   document.getElementById('detail-cliente').textContent = selectedOT.cliente_nombre || '-';
   document.getElementById('detail-producto').textContent = selectedOT.producto_descripcion || '-';
   document.getElementById('detail-cantidad').textContent = formatNumber(selectedOT.cantidad_solicitada) + ' unidades';
   
-  const prioridadTexto = ['', 'Urgente', 'Muy Alta', 'Alta', 'Media-Alta', 'Normal', 'Media', 'Baja', 'Muy Baja', 'Mínima'];
+  const prioridadTexto = ['', 'Urgente', 'Muy Alta', 'Alta', 'Media-Alta', 'Normal', 'Media', 'Baja', 'Muy Baja', 'Minima'];
   document.getElementById('detail-prioridad').textContent = prioridadTexto[selectedOT.prioridad] || 'Normal';
 
   // Materiales
@@ -230,8 +374,12 @@ function showOTDetail() {
   document.getElementById('mat-medida').textContent = selectedOT.medida_corte || '-';
   document.getElementById('mat-pliegos').textContent = formatNumber(selectedOT.cantidad_pliegos || 0);
 
-  // Limpiar observaciones
-  document.getElementById('obs-alistamiento').value = '';
+  // Badge de estado
+  if (!selectedOT._isHistorial) {
+    document.getElementById('detail-estado').className = 'badge-pendiente';
+    document.getElementById('detail-estado').textContent = 'Pendiente';
+    document.getElementById('obs-alistamiento').value = '';
+  }
 }
 
 function resetChecklist() {
@@ -259,7 +407,7 @@ function updateAlistarButton() {
 // ==================== ALISTAMIENTO ====================
 
 function confirmarAlistamiento() {
-  if (!selectedOT) return;
+  if (!selectedOT || selectedOT._isHistorial) return;
 
   const checkboxes = document.querySelectorAll('.checklist-item input');
   const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -270,7 +418,7 @@ function confirmarAlistamiento() {
   }
 
   document.getElementById('confirm-message').textContent = 
-    `¿Confirmas que los materiales para ${selectedOT.numero_ot} están listos para producción?`;
+    `Confirmas que los materiales para ${selectedOT.numero_ot} estan listos para produccion?`;
   
   document.getElementById('modal-confirm').classList.add('active');
   document.getElementById('btn-confirm-alistar').onclick = ejecutarAlistamiento;
@@ -286,7 +434,7 @@ async function ejecutarAlistamiento() {
   try {
     const observaciones = document.getElementById('obs-alistamiento').value;
 
-    // 1. Obtener siguiente estación (PRE - Pre-prensa)
+    // 1. Obtener siguiente estacion (PRE - Pre-prensa)
     const { data: siguienteEstacion } = await db
       .from('estaciones')
       .select('id, nombre')
@@ -294,24 +442,23 @@ async function ejecutarAlistamiento() {
       .single();
 
     if (!siguienteEstacion) {
-      throw new Error('Estación de Pre-prensa no encontrada');
+      throw new Error('Estacion de Pre-prensa no encontrada');
     }
 
-    // 2. Registrar el alistamiento en ot_alistamiento (si existe la tabla)
-    try {
-      await db.from('ot_alistamiento').insert({
-        orden_trabajo_id: selectedOT.id,
-        operador_id: currentOperador.id,
-        observaciones: observaciones || null,
-        checklist_completo: true,
-        fecha_alistamiento: new Date().toISOString()
-      });
-    } catch (e) {
-      // Si la tabla no existe, solo logueamos
-      console.log('Tabla ot_alistamiento no disponible:', e.message);
+    // 2. Registrar el alistamiento en ot_alistamiento
+    const { error: insertError } = await db.from('ot_alistamiento').insert({
+      orden_trabajo_id: selectedOT.id,
+      operador_id: currentOperador.id,
+      observaciones: observaciones || null,
+      checklist_completo: true,
+      fecha_alistamiento: new Date().toISOString()
+    });
+
+    if (insertError) {
+      console.error('Error insertando alistamiento:', insertError);
     }
 
-    // 3. Actualizar la OT - mover a siguiente estación
+    // 3. Actualizar la OT - mover a siguiente estacion
     const { error: updateError } = await db
       .from('ordenes_trabajo')
       .update({
@@ -325,7 +472,7 @@ async function ejecutarAlistamiento() {
 
     if (updateError) throw updateError;
 
-    // 4. Crear registro en ot_estaciones para siguiente estación
+    // 4. Crear registro en ot_estaciones para siguiente estacion
     await db.from('ot_estaciones').insert({
       orden_trabajo_id: selectedOT.id,
       estacion_id: siguienteEstacion.id,
@@ -340,6 +487,7 @@ async function ejecutarAlistamiento() {
     document.getElementById('detail-empty').classList.remove('hidden');
     document.getElementById('detail-content').classList.add('hidden');
     await loadPendingOTs();
+    await loadHistorial();
 
   } catch (err) {
     console.error('Error en alistamiento:', err);
@@ -361,6 +509,18 @@ function formatNumber(num) {
   return num.toLocaleString('es-CO');
 }
 
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('es-CO', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
 function showToast(message, type = 'info') {
   const toast = document.getElementById('toast');
   toast.textContent = message;
@@ -370,7 +530,11 @@ function showToast(message, type = 'info') {
 
 // Exponer funciones globales
 window.selectOT = selectOT;
+window.selectHistorialItem = selectHistorialItem;
 window.loadPendingOTs = loadPendingOTs;
+window.loadHistorial = loadHistorial;
+window.loadCurrentTab = loadCurrentTab;
+window.switchTab = switchTab;
 window.toggleCheck = toggleCheck;
 window.confirmarAlistamiento = confirmarAlistamiento;
 window.closeModal = closeModal;
