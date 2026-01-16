@@ -5,7 +5,7 @@
 const SUPABASE_URL = 'https://sjfhtopclyxbwzhslhwf.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqZmh0b3BjbHl4Ynd6aHNsaHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NzEyMTcsImV4cCI6MjA3NjU0NzIxN30.OWaCsPD2khL9PDMG8ZwbQkJNHe4U8bwx595cWWIxlp8';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Estado de la aplicación
 let currentOperador = null;
@@ -90,7 +90,7 @@ async function verifyPin(pin) {
   const errorDiv = document.getElementById('login-error');
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('operadores')
       .select('*')
       .eq('pin_hash', pin)
@@ -172,7 +172,7 @@ async function loadPendingOTs() {
   try {
     // Cargar OTs que están en estado pendiente y en estación de Diseño
     // O que tienen estado 'diseño_completado'
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('ordenes_trabajo')
       .select(`
         *,
@@ -319,7 +319,7 @@ async function assignOT() {
     const notas = document.getElementById('assign-notas').value;
 
     // Obtener la estación de Almacén (siguiente después de Diseño)
-    const { data: estacionAlmacen, error: estacionError } = await supabase
+    const { data: estacionAlmacen, error: estacionError } = await db
       .from('estaciones')
       .select('id')
       .eq('codigo', 'ALM')
@@ -330,7 +330,7 @@ async function assignOT() {
 
     if (!nuevaEstacionId) {
       // Buscar estación de Corte como fallback
-      const { data: estacionCorte } = await supabase
+      const { data: estacionCorte } = await db
         .from('estaciones')
         .select('id')
         .eq('codigo', 'COR')
@@ -340,7 +340,7 @@ async function assignOT() {
     }
 
     // Actualizar la OT
-    const { error: updateError } = await supabase
+    const { error: updateError } = await db
       .from('ordenes_trabajo')
       .update({
         estado: 'asignada',
@@ -357,7 +357,7 @@ async function assignOT() {
 
     // Crear registro en ot_estaciones si existe la estación
     if (nuevaEstacionId && nuevaEstacionId !== selectedOT.estacion_actual) {
-      await supabase
+      await db
         .from('ot_estaciones')
         .insert({
           orden_trabajo_id: selectedOT.id,
