@@ -15,8 +15,39 @@
       --almacen-light: #e8f5e0;
     }
     
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    
     .almacen-theme .app-header {
       background: linear-gradient(135deg, var(--almacen-primary) 0%, var(--almacen-secondary) 100%);
+    }
+    
+    .almacen-theme #almacen-screen {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .almacen-theme .jefe-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .almacen-theme .jefe-list-panel {
+      overflow-y: auto;
+    }
+    
+    .almacen-theme .jefe-detail-panel {
+      overflow-y: auto;
+      padding-bottom: 40px;
+    }
+    
+    .almacen-theme .detail-content {
+      padding: 20px;
+      padding-bottom: 100px;
     }
     
     .almacen-theme .btn-alistar {
@@ -30,6 +61,7 @@
       cursor: pointer;
       width: 100%;
       margin-top: 20px;
+      margin-bottom: 40px;
       transition: transform 0.2s, box-shadow 0.2s;
     }
     
@@ -173,11 +205,25 @@
       font-size: 1rem;
       resize: vertical;
       min-height: 80px;
+      box-sizing: border-box;
     }
     
     .obs-textarea:focus {
       outline: none;
       border-color: var(--almacen-primary);
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .almacen-theme .jefe-container {
+        flex-direction: column;
+      }
+      
+      .almacen-theme .jefe-list-panel,
+      .almacen-theme .jefe-detail-panel {
+        width: 100%;
+        max-height: 50vh;
+      }
     }
   </style>
 </head>
