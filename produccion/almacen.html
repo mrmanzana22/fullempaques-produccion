@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#2d5016">
+  <title>Almacén - FULLEMPAQUES</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    :root {
+      --almacen-primary: #2d5016;
+      --almacen-secondary: #4a7c23;
+      --almacen-light: #e8f5e0;
+    }
+    
+    .almacen-theme .app-header {
+      background: linear-gradient(135deg, var(--almacen-primary) 0%, var(--almacen-secondary) 100%);
+    }
+    
+    .almacen-theme .btn-alistar {
+      background: linear-gradient(135deg, var(--almacen-primary) 0%, var(--almacen-secondary) 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .almacen-theme .btn-alistar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(45, 80, 22, 0.4);
+    }
+    
+    .almacen-theme .btn-alistar:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .material-card {
+      background: var(--almacen-light);
+      border-left: 4px solid var(--almacen-primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .material-card h4 {
+      margin: 0 0 8px 0;
+      color: var(--almacen-primary);
+      font-size: 1rem;
+    }
+    
+    .material-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    
+    .material-item {
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    
+    .material-item .label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .material-item .value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+    
+    .material-item .value.highlight {
+      color: var(--almacen-primary);
+      font-size: 1.3rem;
+    }
+    
+    .ot-card.pendiente-alistar {
+      border-left: 4px solid var(--almacen-primary);
+    }
+    
+    .ot-card.alistado {
+      border-left: 4px solid var(--success);
+      opacity: 0.7;
+    }
+    
+    .badge-pendiente {
+      background: #fff3cd;
+      color: #856404;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .badge-alistado {
+      background: #d4edda;
+      color: #155724;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .detail-section {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .detail-section h3 {
+      margin: 0 0 16px 0;
+      color: var(--almacen-primary);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--almacen-light);
+      padding-bottom: 8px;
+    }
+    
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .checklist-item:hover {
+      background: var(--almacen-light);
+    }
+    
+    .checklist-item input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      accent-color: var(--almacen-primary);
+    }
+    
+    .checklist-item.checked {
+      background: var(--almacen-light);
+    }
+    
+    .checklist-item.checked label {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+    
+    .obs-textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .obs-textarea:focus {
+      outline: none;
+      border-color: var(--almacen-primary);
+    }
+  </style>
+</head>
+<body class="almacen-theme">
+  <!-- LOGIN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-logo">FULLEMPAQUES</div>
+    <div class="login-subtitle">Almacén - Alistamiento</div>
+    
+    <div class="pin-display">
+      <div class="pin-dot" data-index="0"></div>
+      <div class="pin-dot" data-index="1"></div>
+      <div class="pin-dot" data-index="2"></div>
+      <div class="pin-dot" data-index="3"></div>
+    </div>
+    
+    <div class="pin-keypad">
+      <button class="pin-key" data-value="1">1</button>
+      <button class="pin-key" data-value="2">2</button>
+      <button class="pin-key" data-value="3">3</button>
+      <button class="pin-key" data-value="4">4</button>
+      <button class="pin-key" data-value="5">5</button>
+      <button class="pin-key" data-value="6">6</button>
+      <button class="pin-key" data-value="7">7</button>
+      <button class="pin-key" data-value="8">8</button>
+      <button class="pin-key" data-value="9">9</button>
+      <div></div>
+      <button class="pin-key" data-value="0">0</button>
+      <button class="pin-key delete" data-value="delete">DEL</button>
+    </div>
+    
+    <div id="login-error" class="login-error"></div>
+  </div>
+  
+  <!-- PANTALLA PRINCIPAL -->
+  <div id="almacen-screen" class="hidden">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">ALMACÉN</div>
+        <div class="header-operator">
+          <span id="operator-name">Operador</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span id="ot-count" class="badge">0</span> pendientes
+        <button id="btn-logout" class="btn-logout">Salir</button>
+      </div>
+    </header>
+    
+    <div class="jefe-container">
+      <!-- Lista de OTs -->
+      <div class="jefe-list-panel">
+        <div class="panel-header">
+          <h2>OTs por Alistar</h2>
+          <button onclick="loadPendingOTs()" class="btn-refresh">↻</button>
+        </div>
+        <div id="ot-list" class="ot-list">
+          <div class="loading-spinner"><div class="spinner"></div></div>
+        </div>
+      </div>
+      
+      <!-- Detalle OT -->
+      <div class="jefe-detail-panel">
+        <div id="detail-empty" class="detail-empty">
+          <div class="empty-icon">📦</div>
+          <p>Selecciona una OT para ver los materiales a alistar</p>
+        </div>
+        
+        <div id="detail-content" class="detail-content hidden">
+          <div class="detail-header">
+            <h2 id="detail-numero">OT-2025-01-0001</h2>
+            <span id="detail-estado" class="badge-pendiente">Pendiente</span>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Información General</h3>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="label">Cliente</span>
+                <span class="value" id="detail-cliente">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Producto</span>
+                <span class="value" id="detail-producto">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Cantidad</span>
+                <span class="value" id="detail-cantidad">-</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">Prioridad</span>
+                <span class="value" id="detail-prioridad">-</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Materiales a Alistar</h3>
+            <div class="material-card">
+              <div class="material-info">
+                <div class="material-item">
+                  <div class="label">Material</div>
+                  <div class="value" id="mat-nombre">-</div>
+                </div>
+                <div class="material-item">
+                  <div class="label">Calibre</div>
+                  <div class="value" id="mat-calibre">-</div>
+                </div>
+                <div class="material-item">
+                  <div class="label">Medida Corte</div>
+                  <div class="value" id="mat-medida">-</div>
+                </div>
+                <div class="material-item">
+                  <div class="label">Cantidad Pliegos</div>
+                  <div class="value highlight" id="mat-pliegos">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Checklist de Alistamiento</h3>
+            <div id="checklist-container">
+              <div class="checklist-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="check-material">
+                <label for="check-material">Material verificado y en buen estado</label>
+              </div>
+              <div class="checklist-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="check-cantidad">
+                <label for="check-cantidad">Cantidad correcta de pliegos</label>
+              </div>
+              <div class="checklist-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="check-medida">
+                <label for="check-medida">Medida de corte correcta</label>
+              </div>
+              <div class="checklist-item" onclick="toggleCheck(this)">
+                <input type="checkbox" id="check-ubicacion">
+                <label for="check-ubicacion">Material ubicado en zona de producción</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Observaciones</h3>
+            <textarea id="obs-alistamiento" class="obs-textarea" placeholder="Observaciones del alistamiento (opcional)..."></textarea>
+          </div>
+          
+          <button id="btn-alistar" class="btn-alistar" onclick="confirmarAlistamiento()">
+            ✓ Marcar como Alistado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal Confirmación -->
+  <div id="modal-confirm" class="modal-overlay">
+    <div class="modal">
+      <h2 class="modal-title">Confirmar Alistamiento</h2>
+      <p id="confirm-message">¿Confirmas que los materiales están listos para producción?</p>
+      <div class="modal-actions">
+        <button class="btn-modal cancel" onclick="closeModal()">Cancelar</button>
+        <button class="btn-modal success" id="btn-confirm-alistar">Confirmar</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="almacen.js"></script>
+</body>
+</html>
