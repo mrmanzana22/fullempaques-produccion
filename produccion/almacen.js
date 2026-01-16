@@ -215,9 +215,14 @@ function renderOTsList() {
 
   if (otsList.length === 0) {
     listContainer.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-        <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
-        No hay OTs pendientes de alistar
+      <div class="empty-list-state">
+        <div class="empty-list-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p class="empty-list-text">No hay OTs pendientes de alistar</p>
+        <span class="empty-list-hint">Todas las ordenes han sido procesadas</span>
       </div>
     `;
     return;
@@ -233,7 +238,10 @@ function renderOTsList() {
       <div class="ot-cliente">${ot.cliente_nombre || 'Sin cliente'}</div>
       <div class="ot-producto">${ot.producto_descripcion || 'Sin descripcion'}</div>
       <div class="ot-material">
-        📦 ${ot.material_nombre || 'Material'} - ${formatNumber(ot.cantidad_pliegos || 0)} pliegos
+        <svg class="material-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m16.5 0V6a2.25 2.25 0 00-2.25-2.25H6A2.25 2.25 0 003.75 6v1.5m16.5 0h-16.5" />
+        </svg>
+        ${ot.material_nombre || 'Material'} - ${formatNumber(ot.cantidad_pliegos || 0)} pliegos
       </div>
     </div>
   `).join('');
@@ -285,9 +293,14 @@ function renderHistorial() {
 
   if (historialList.length === 0) {
     listContainer.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-        <div style="font-size: 3rem; margin-bottom: 10px;">📋</div>
-        No hay historial de alistamientos
+      <div class="empty-list-state">
+        <div class="empty-list-icon empty-list-icon--history">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p class="empty-list-text">No hay historial de alistamientos</p>
+        <span class="empty-list-hint">Los alistamientos completados apareceran aqui</span>
       </div>
     `;
     return;
@@ -301,7 +314,12 @@ function renderHistorial() {
         <span class="badge-alistado">Alistado</span>
       </div>
       <div class="ot-cliente">${item.ordenes_trabajo?.cliente_nombre || 'Sin cliente'}</div>
-      <div class="ot-fecha">${formatDate(item.fecha_alistamiento)}</div>
+      <div class="ot-fecha">
+        <svg class="fecha-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        ${formatDate(item.fecha_alistamiento)}
+      </div>
     </div>
   `).join('');
 }
