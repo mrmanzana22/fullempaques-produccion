@@ -286,15 +286,15 @@ async function ejecutarAlistamiento() {
   try {
     const observaciones = document.getElementById('obs-alistamiento').value;
 
-    // 1. Obtener estación de Corte (siguiente después de Almacén)
-    const { data: estacionCorte } = await db
+    // 1. Obtener siguiente estación (PRE - Pre-prensa)
+    const { data: siguienteEstacion } = await db
       .from('estaciones')
-      .select('id')
-      .eq('codigo', 'COR')
+      .select('id, nombre')
+      .eq('codigo', 'PRE')
       .single();
 
-    if (!estacionCorte) {
-      throw new Error('Estación de Corte no encontrada');
+    if (!siguienteEstacion) {
+      throw new Error('Estación de Pre-prensa no encontrada');
     }
 
     // 2. Registrar el alistamiento en ot_alistamiento (si existe la tabla)
@@ -311,11 +311,11 @@ async function ejecutarAlistamiento() {
       console.log('Tabla ot_alistamiento no disponible:', e.message);
     }
 
-    // 3. Actualizar la OT - mover a estación Corte
+    // 3. Actualizar la OT - mover a siguiente estación
     const { error: updateError } = await db
       .from('ordenes_trabajo')
       .update({
-        estacion_actual: estacionCorte.id,
+        estacion_actual: siguienteEstacion.id,
         estado: 'en_proceso',
         fecha_alistamiento: new Date().toISOString(),
         alistado_por: currentOperador.id,
@@ -325,15 +325,15 @@ async function ejecutarAlistamiento() {
 
     if (updateError) throw updateError;
 
-    // 4. Crear registro en ot_estaciones para Corte
+    // 4. Crear registro en ot_estaciones para siguiente estación
     await db.from('ot_estaciones').insert({
       orden_trabajo_id: selectedOT.id,
-      estacion_id: estacionCorte.id,
+      estacion_id: siguienteEstacion.id,
       estado: 'pendiente'
     });
 
     closeModal();
-    showToast('Alistamiento completado - OT enviada a Corte', 'success');
+    showToast(`Alistamiento completado - OT enviada a ${siguienteEstacion.nombre}`, 'success');
 
     // Limpiar y recargar
     selectedOT = null;
