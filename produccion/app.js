@@ -441,8 +441,8 @@ function renderOTCard(ot) {
         <div class="ot-number">${ot.numero_ot}</div>
         <div class="ot-status ${estadoClass}">${formatEstado(ot.estado)}</div>
       </div>
-      <div class="ot-cliente">${ot.cliente}</div>
-      <div class="ot-producto">${ot.descripcion_producto}</div>
+      <div class="ot-cliente">${ot.cliente || ot.cliente_nombre || 'Sin cliente'}</div>
+      <div class="ot-producto">${ot.descripcion_producto || ot.producto_descripcion || 'Sin producto'}</div>
       <div class="ot-progress-container">
         <div class="ot-progress-label">
           <span>Progreso</span>
@@ -532,8 +532,8 @@ function updateWorkScreen() {
   if (!currentOT || !currentOTEstacion) return;
 
   document.getElementById('work-ot-number').textContent = currentOT.numero_ot;
-  document.getElementById('work-cliente').textContent = currentOT.cliente;
-  document.getElementById('work-producto').textContent = currentOT.descripcion_producto;
+  document.getElementById('work-cliente').textContent = currentOT.cliente || currentOT.cliente_nombre || 'Sin cliente';
+  document.getElementById('work-producto').textContent = currentOT.descripcion_producto || currentOT.producto_descripcion || 'Sin producto';
   document.getElementById('work-estacion').textContent = currentOTEstacion.estaciones?.nombre || 'Estación';
 
   const estacionesOrdenadas = currentOT.ot_estaciones
