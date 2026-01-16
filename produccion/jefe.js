@@ -170,27 +170,22 @@ async function loadPendingOTs() {
   listContainer.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
 
   try {
-    // Cargar OTs que están en estado pendiente y en estación de Diseño
-    // O que tienen estado 'diseño_completado'
+    // Cargar OTs que Diseño ya completó y están listas para asignar
     const { data, error } = await db
       .from('ordenes_trabajo')
       .select(`
         *,
         estacion:estaciones(nombre, codigo)
       `)
-      .or('estado.eq.pendiente,estado.eq.diseño_completado')
+      .eq('estado', 'diseño_completado')
       .is('deleted_at', null)
       .order('prioridad', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
 
-    // Filtrar solo las que están en Diseño (código DIS) o esperando asignación
-    otsList = data.filter(ot => {
-      const enDiseno = ot.estacion?.codigo === 'DIS';
-      const esperandoAsignacion = ot.estado === 'diseño_completado';
-      return enDiseno || esperandoAsignacion;
-    });
+    // Ya vienen filtradas desde el query
+    otsList = data;
 
     renderOTsList();
     document.getElementById('ot-count').textContent = otsList.length;
