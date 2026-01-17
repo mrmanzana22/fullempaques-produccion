@@ -324,8 +324,8 @@ function renderOTCard(ot) {
         <div class="ot-number">${ot.numero_ot}</div>
         <div class="ot-status ${estadoClass}">${formatEstado(ot.estado)}</div>
       </div>
-      <div class="ot-cliente">${ot.cliente}</div>
-      <div class="ot-producto">${ot.descripcion_producto}</div>
+      <div class="ot-cliente">${ot.cliente_nombre || ot.cliente || 'Sin cliente'}</div>
+      <div class="ot-producto">${ot.producto_descripcion || ot.descripcion_producto || 'Sin producto'}</div>
       <div class="ot-progress-container">
         <div class="ot-progress-label">
           <span>Progreso</span>
@@ -428,8 +428,8 @@ function updateWorkScreen() {
   if (!currentOT || !currentOTEstacion) return;
 
   document.getElementById('work-ot-number').textContent = currentOT.numero_ot;
-  document.getElementById('work-cliente').textContent = currentOT.cliente;
-  document.getElementById('work-producto').textContent = currentOT.descripcion_producto;
+  document.getElementById('work-cliente').textContent = currentOT.cliente_nombre || currentOT.cliente || 'Sin cliente';
+  document.getElementById('work-producto').textContent = currentOT.producto_descripcion || currentOT.descripcion_producto || 'Sin producto';
   document.getElementById('work-estacion').textContent = currentOTEstacion.estaciones?.nombre || 'Estación';
 
   // Buscar estación anterior
