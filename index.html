@@ -3,776 +3,477 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0a1628">
-  <title>FULLEMPAQUES | Sistema de Gestión</title>
+  <meta name="theme-color" content="#1a1a2e">
+  <title>FULLEMPAQUES | Centro de Control</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --primary: #0a1628;
-      --secondary: #1a2d4a;
-      --accent: #c9a227;
-      --accent-light: #e8c547;
-      --text: #ffffff;
-      --text-muted: #8892a4;
-      --glass: rgba(255, 255, 255, 0.05);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --glow: rgba(201, 162, 39, 0.4);
+      --bg-primary: #0f0f1a;
+      --bg-secondary: #1a1a2e;
+      --bg-card: #16213e;
+      --bg-card-hover: #1f2b4d;
+      --accent: #4f8cff;
+      --accent-secondary: #00d9ff;
+      --accent-success: #00c853;
+      --accent-warning: #ffc107;
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --text-muted: #64748b;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--primary);
+      background: var(--bg-primary);
+      color: var(--text-primary);
       min-height: 100vh;
-      overflow-x: hidden;
-      color: var(--text);
+      line-height: 1.6;
     }
 
-    /* Animated Background */
-    .bg-container {
+    /* Navigation Bar */
+    .navbar {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 1000;
+    }
+
+    .navbar-brand { display: flex; align-items: center; gap: 12px; }
+
+    .navbar-logo {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.9rem;
+    }
+
+    .navbar-title { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.5px; }
+    .navbar-title span { color: var(--text-secondary); font-weight: 400; margin-left: 8px; }
+
+    .navbar-status { display: flex; align-items: center; gap: 24px; }
+
+    .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-secondary); }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      background: var(--accent-success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    .navbar-time { font-size: 0.9rem; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+    /* Main */
+    .main { padding-top: 64px; min-height: 100vh; }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      padding: 80px 32px 60px;
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
       overflow: hidden;
     }
 
-    .bg-gradient {
-      position: absolute;
-      width: 100%;
-      height: 100%;
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       background:
-        radial-gradient(ellipse at 20% 20%, rgba(201, 162, 39, 0.15) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 80%, rgba(26, 45, 74, 0.8) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 50%, rgba(10, 22, 40, 1) 0%, var(--primary) 100%);
+        radial-gradient(ellipse at 30% 0%, rgba(79, 140, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 100%, rgba(0, 217, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
     }
 
-    .grid-overlay {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-      animation: gridMove 20s linear infinite;
+    .hero-content { position: relative; max-width: 1400px; margin: 0 auto; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(79, 140, 255, 0.1);
+      border: 1px solid rgba(79, 140, 255, 0.3);
+      padding: 8px 16px; border-radius: 50px;
+      font-size: 0.8rem; color: var(--accent);
+      margin-bottom: 24px;
+      text-transform: uppercase; letter-spacing: 1px; font-weight: 500;
     }
 
-    @keyframes gridMove {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(60px, 60px); }
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700; letter-spacing: -1px;
+      margin-bottom: 16px; line-height: 1.1;
     }
 
-    .floating-shapes {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
-
-    .shape {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.5;
-      animation: float 20s ease-in-out infinite;
-    }
-
-    .shape-1 {
-      width: 400px;
-      height: 400px;
-      background: var(--accent);
-      top: -100px;
-      right: -100px;
-      animation-delay: 0s;
-    }
-
-    .shape-2 {
-      width: 300px;
-      height: 300px;
-      background: var(--secondary);
-      bottom: -50px;
-      left: -50px;
-      animation-delay: -5s;
-    }
-
-    .shape-3 {
-      width: 200px;
-      height: 200px;
-      background: var(--accent);
-      top: 50%;
-      left: 20%;
-      opacity: 0.2;
-      animation-delay: -10s;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      25% { transform: translate(30px, -30px) scale(1.05); }
-      50% { transform: translate(-20px, 20px) scale(0.95); }
-      75% { transform: translate(20px, 30px) scale(1.02); }
-    }
-
-    /* Main Content */
-    .main-container {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 40px 20px;
-    }
-
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 60px;
-      animation: fadeInDown 1s ease-out;
-    }
-
-    @keyframes fadeInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .logo-container {
-      display: inline-flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .logo-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      box-shadow:
-        0 10px 40px rgba(201, 162, 39, 0.3),
-        0 0 0 1px rgba(255,255,255,0.1) inset;
-      animation: logoGlow 3s ease-in-out infinite;
-    }
-
-    @keyframes logoGlow {
-      0%, 100% { box-shadow: 0 10px 40px rgba(201, 162, 39, 0.3), 0 0 0 1px rgba(255,255,255,0.1) inset; }
-      50% { box-shadow: 0 10px 60px rgba(201, 162, 39, 0.5), 0 0 0 1px rgba(255,255,255,0.2) inset; }
-    }
-
-    .brand {
-      text-align: left;
-    }
-
-    .brand-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 3rem;
-      font-weight: 700;
-      letter-spacing: -1px;
-      background: linear-gradient(135deg, #ffffff 0%, #c9a227 100%);
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
-    .brand-tagline {
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      font-weight: 400;
-      letter-spacing: 3px;
-      text-transform: uppercase;
+    .hero-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin-bottom: 40px; }
+
+    /* Stats */
+    .quick-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 28px;
+      min-width: 160px;
     }
 
-    .header-subtitle {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      max-width: 500px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1; }
+    .stat-value.accent { color: var(--accent); }
 
-    /* Stats Bar */
-    .stats-bar {
-      display: flex;
-      justify-content: center;
-      gap: 60px;
-      margin-bottom: 60px;
-      animation: fadeInUp 1s ease-out 0.3s both;
-    }
+    /* Modules Section */
+    .modules-section { padding: 60px 32px 80px; max-width: 1400px; margin: 0 auto; }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .section-title { font-size: 1.5rem; font-weight: 600; }
+    .section-subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
-    .stat-item {
-      text-align: center;
-    }
+    /* Modules Grid */
+    .modules-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
 
-    .stat-value {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-top: 8px;
-    }
-
-    /* Cards Grid */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 0 20px;
-    }
-
-    .card {
+    .module-card {
       position: relative;
-      background: var(--glass);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
       text-decoration: none;
-      color: var(--text);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
       overflow: hidden;
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      animation: fadeInUp 0.8s ease-out both;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
     }
 
-    .card:nth-child(1) { animation-delay: 0.4s; }
-    .card:nth-child(2) { animation-delay: 0.5s; }
-    .card:nth-child(3) { animation-delay: 0.6s; }
-    .card:nth-child(4) { animation-delay: 0.7s; }
-    .card:nth-child(5) { animation-delay: 0.8s; }
-
-    .card::before {
+    .module-card::before {
       content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      position: absolute; top: 0; left: 0; right: 0;
       height: 3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      background: var(--card-accent, var(--accent));
       transform: scaleX(0);
       transform-origin: left;
-      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      transition: transform 0.3s ease;
     }
 
-    .card::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(201, 162, 39, 0.1) 0%, transparent 50%);
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
+    .module-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(79, 140, 255, 0.3);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
     }
 
-    .card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: rgba(201, 162, 39, 0.3);
-      box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(201, 162, 39, 0.1);
+    .module-card:hover::before { transform: scaleX(1); }
+    .module-card:hover .module-arrow { transform: translateX(4px); opacity: 1; }
+
+    .module-card.primary {
+      grid-column: span 8;
+      --card-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
     }
 
-    .card:hover::before {
-      transform: scaleX(1);
-    }
+    .module-card.secondary { grid-column: span 4; }
+    .module-card.tertiary { grid-column: span 4; }
 
-    .card:hover::after {
-      opacity: 1;
-    }
+    .module-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
 
-    .card:hover .card-icon {
-      transform: scale(1.1) rotate(5deg);
-      box-shadow: 0 15px 40px rgba(201, 162, 39, 0.4);
-    }
-
-    .card:hover .card-arrow {
-      transform: translateX(5px);
-      opacity: 1;
-    }
-
-    .card-icon {
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin-bottom: 24px;
-      border: 1px solid var(--glass-border);
-      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    .card-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .card-title {
-      font-family: 'Space Grotesk', sans-serif;
+    .module-icon {
+      width: 48px; height: 48px;
+      background: rgba(79, 140, 255, 0.1);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
       font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
 
-    .card-arrow {
-      font-size: 1.2rem;
-      opacity: 0;
-      transform: translateX(-10px);
-      transition: all 0.3s ease;
+    .module-card.primary .module-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-secondary) 100%);
+      font-size: 1.75rem;
     }
 
-    .card-description {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 20px;
+    .module-badge {
+      background: rgba(0, 200, 83, 0.1);
+      color: var(--accent-success);
+      padding: 4px 10px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
     }
 
-    .card-features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+    .module-badge.external { background: rgba(255, 193, 7, 0.1); color: var(--accent-warning); }
+
+    .module-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .module-card.primary .module-title { font-size: 1.5rem; }
+
+    .module-arrow { opacity: 0; transition: all 0.3s ease; color: var(--accent); }
+
+    .module-description { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6; }
+
+    .module-features { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .feature-chip {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 12px; border-radius: 6px;
+      font-size: 0.75rem; color: var(--text-muted);
+      border: 1px solid var(--border);
     }
 
-    .feature-tag {
-      background: rgba(201, 162, 39, 0.1);
-      border: 1px solid rgba(201, 162, 39, 0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      color: var(--accent-light);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .quick-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+    .quick-action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 10px 16px; border-radius: 8px;
+      color: var(--text-secondary); font-size: 0.8rem;
+      display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s ease;
     }
 
-    /* Featured Card */
-    .card.featured {
-      grid-column: span 2;
-      background: linear-gradient(135deg, rgba(201, 162, 39, 0.1) 0%, var(--glass) 100%);
-      border-color: rgba(201, 162, 39, 0.2);
-    }
-
-    .card.featured .card-icon {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-    }
-
-    /* External Link Badge */
-    .external-badge {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
+    .quick-action-btn:hover {
+      background: rgba(79, 140, 255, 0.1);
+      border-color: rgba(79, 140, 255, 0.3);
+      color: var(--accent);
     }
 
     /* Footer */
-    .footer {
-      margin-top: auto;
-      padding-top: 60px;
-      text-align: center;
-      animation: fadeIn 1s ease-out 1s both;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .footer-line {
-      width: 60px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      margin: 0 auto 20px;
-    }
-
-    .footer-text {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    .footer-text strong {
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    /* Time Display */
-    .time-display {
-      position: fixed;
-      top: 30px;
-      right: 30px;
-      text-align: right;
-      animation: fadeIn 1s ease-out 0.5s both;
-    }
-
-    .time-value {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2rem;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: 2px;
-    }
-
-    .date-value {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
+    .footer { padding: 32px; text-align: center; border-top: 1px solid var(--border); }
+    .footer-text { color: var(--text-muted); font-size: 0.85rem; }
+    .footer-text strong { color: var(--text-secondary); }
 
     /* Responsive */
     @media (max-width: 1024px) {
-      .card.featured {
-        grid-column: span 1;
-      }
-
-      .stats-bar {
-        gap: 40px;
-      }
+      .module-card.primary, .module-card.secondary, .module-card.tertiary { grid-column: span 6; }
     }
 
     @media (max-width: 768px) {
-      .brand-name {
-        font-size: 2rem;
-      }
-
-      .logo-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
-      }
-
-      .stats-bar {
-        flex-wrap: wrap;
-        gap: 30px;
-      }
-
-      .stat-value {
-        font-size: 2rem;
-      }
-
-      .cards-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .time-display {
-        position: relative;
-        top: 0;
-        right: 0;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-
-      .header {
-        margin-bottom: 40px;
-      }
+      .navbar { padding: 0 16px; }
+      .navbar-title span { display: none; }
+      .hero { padding: 60px 20px 40px; }
+      .modules-section { padding: 40px 20px 60px; }
+      .module-card.primary, .module-card.secondary, .module-card.tertiary { grid-column: span 12; }
+      .quick-stats { gap: 16px; }
+      .stat-card { flex: 1; min-width: 120px; padding: 16px; }
+      .stat-value { font-size: 1.5rem; }
+      .quick-actions { flex-wrap: wrap; }
     }
 
-    /* Pulse Animation for Live Status */
-    .pulse {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      background: #22c55e;
-      border-radius: 50%;
-      margin-right: 8px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% {
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-      }
-      70% {
-        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-      }
-      100% {
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-      }
-    }
-
-    .status-online {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      font-size: 0.75rem;
-      color: #22c55e;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-top: 10px;
+    @media (max-width: 480px) {
+      .navbar-status { display: none; }
+      .hero-badge { font-size: 0.7rem; padding: 6px 12px; }
+      .stat-card { min-width: calc(50% - 8px); }
     }
   </style>
 </head>
 <body>
-  <!-- Animated Background -->
-  <div class="bg-container">
-    <div class="bg-gradient"></div>
-    <div class="grid-overlay"></div>
-    <div class="floating-shapes">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-      <div class="shape shape-3"></div>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-logo">FE</div>
+      <div class="navbar-title">FULLEMPAQUES <span>Centro de Control</span></div>
     </div>
-  </div>
-
-  <!-- Main Content -->
-  <div class="main-container">
-    <!-- Time Display -->
-    <div class="time-display">
-      <div class="time-value" id="time">--:--</div>
-      <div class="date-value" id="date">--</div>
-    </div>
-
-    <!-- Header -->
-    <header class="header">
-      <div class="logo-container">
-        <div class="logo-icon">FE</div>
-        <div class="brand">
-          <h1 class="brand-name">FULLEMPAQUES</h1>
-          <p class="brand-tagline">Sistema Integral de Gestión</p>
-        </div>
-      </div>
-      <div class="status-online">
-        <span class="pulse"></span>
+    <div class="navbar-status">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
         Sistema Operativo
       </div>
-    </header>
-
-    <!-- Stats Bar -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <div class="stat-value" id="stat-estaciones">10</div>
-        <div class="stat-label">Estaciones</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value" id="stat-modulos">5</div>
-        <div class="stat-label">Módulos</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">24/7</div>
-        <div class="stat-label">Disponible</div>
-      </div>
+      <div class="navbar-time" id="navbar-time">--:--</div>
     </div>
+  </nav>
 
-    <!-- Cards Grid -->
-    <div class="cards-grid">
-      <!-- Producción Card - Featured -->
-      <a href="/produccion/" class="card featured">
-        <div class="card-icon">
-          <span>&#9881;</span>
+  <main class="main">
+    <section class="hero">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span>&#9889;</span>
+          Plataforma Integrada
         </div>
-        <div class="card-content">
-          <h2 class="card-title">
-            Producción
-            <span class="card-arrow">&rarr;</span>
-          </h2>
-          <p class="card-description">
-            Centro de operaciones para todas las estaciones de producción.
-            Control de tiempos, mermas y avance en tiempo real.
-          </p>
-          <div class="card-features">
-            <span class="feature-tag">Pre-prensa</span>
-            <span class="feature-tag">Impresión</span>
-            <span class="feature-tag">Troquelado</span>
-            <span class="feature-tag">Acabados</span>
-            <span class="feature-tag">+6 más</span>
+        <h1 class="hero-title">
+          Gestión de <span class="highlight">Producción</span><br>
+          en Tiempo Real
+        </h1>
+        <p class="hero-subtitle">
+          Controla todo el flujo productivo desde cotizaciones hasta entrega.
+          10 estaciones, 5 módulos, una sola plataforma.
+        </p>
+        <div class="quick-stats">
+          <div class="stat-card">
+            <div class="stat-label">Estaciones</div>
+            <div class="stat-value accent">10</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Módulos</div>
+            <div class="stat-value">5</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Disponibilidad</div>
+            <div class="stat-value">24/7</div>
           </div>
         </div>
-      </a>
+      </div>
+    </section>
 
-      <!-- Jefe de Producción -->
-      <a href="/jefe.html" class="card">
-        <div class="card-icon">
-          <span>&#128202;</span>
+    <section class="modules-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Módulos del Sistema</h2>
+          <p class="section-subtitle">Acceso rápido a todas las áreas de gestión</p>
         </div>
-        <div class="card-content">
-          <h2 class="card-title">
+      </div>
+
+      <div class="modules-grid">
+        <a href="https://litografia-cotizaciones.vercel.app" target="_blank" class="module-card primary">
+          <div class="module-header">
+            <div class="module-icon">&#128196;</div>
+            <span class="module-badge external">Portal Externo</span>
+          </div>
+          <h3 class="module-title">
+            Cotizaciones y Gestión Comercial
+            <span class="module-arrow">&rarr;</span>
+          </h3>
+          <p class="module-description">
+            Punto de inicio del flujo. Crea cotizaciones, gestiona clientes y productos,
+            aprueba pedidos y genera órdenes de trabajo automáticamente.
+          </p>
+          <div class="module-features">
+            <span class="feature-chip">Clientes</span>
+            <span class="feature-chip">Productos</span>
+            <span class="feature-chip">Cotizaciones</span>
+            <span class="feature-chip">Aprobación</span>
+            <span class="feature-chip">Generación OT</span>
+          </div>
+          <div class="quick-actions">
+            <span class="quick-action-btn">&#10133; Nueva Cotización</span>
+            <span class="quick-action-btn">&#128203; Ver Pendientes</span>
+            <span class="quick-action-btn">&#128200; Dashboard</span>
+          </div>
+        </a>
+
+        <a href="/jefe.html" class="module-card secondary">
+          <div class="module-header">
+            <div class="module-icon">&#128202;</div>
+            <span class="module-badge">Activo</span>
+          </div>
+          <h3 class="module-title">
             Jefe de Producción
-            <span class="card-arrow">&rarr;</span>
-          </h2>
-          <p class="card-description">
-            Asignación de órdenes de trabajo, prioridades y seguimiento del flujo productivo.
+            <span class="module-arrow">&rarr;</span>
+          </h3>
+          <p class="module-description">
+            Asigna OTs al flujo productivo, define prioridades y fechas de compromiso.
           </p>
-          <div class="card-features">
-            <span class="feature-tag">Asignación OT</span>
-            <span class="feature-tag">Prioridades</span>
+          <div class="module-features">
+            <span class="feature-chip">Asignación</span>
+            <span class="feature-chip">Prioridades</span>
           </div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Almacén -->
-      <a href="/almacen.html" class="card">
-        <div class="card-icon">
-          <span>&#128230;</span>
-        </div>
-        <div class="card-content">
-          <h2 class="card-title">
+        <a href="/produccion/" class="module-card secondary">
+          <div class="module-header">
+            <div class="module-icon">&#9881;</div>
+            <span class="module-badge">Activo</span>
+          </div>
+          <h3 class="module-title">
+            Producción
+            <span class="module-arrow">&rarr;</span>
+          </h3>
+          <p class="module-description">
+            Centro de operaciones. Control de tiempos, mermas y avance por estación.
+          </p>
+          <div class="module-features">
+            <span class="feature-chip">10 Estaciones</span>
+            <span class="feature-chip">Tiempo Real</span>
+          </div>
+        </a>
+
+        <a href="/almacen.html" class="module-card tertiary">
+          <div class="module-header">
+            <div class="module-icon">&#128230;</div>
+            <span class="module-badge">Activo</span>
+          </div>
+          <h3 class="module-title">
             Almacén
-            <span class="card-arrow">&rarr;</span>
-          </h2>
-          <p class="card-description">
+            <span class="module-arrow">&rarr;</span>
+          </h3>
+          <p class="module-description">
             Gestión de alistamiento de materiales y recepción de producto terminado.
           </p>
-          <div class="card-features">
-            <span class="feature-tag">Alistamiento</span>
-            <span class="feature-tag">Inventario</span>
+          <div class="module-features">
+            <span class="feature-chip">Alistamiento</span>
+            <span class="feature-chip">Inventario</span>
           </div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Cotizaciones -->
-      <a href="https://litografia-cotizaciones.vercel.app" target="_blank" class="card">
-        <span class="external-badge">Externo</span>
-        <div class="card-icon">
-          <span>&#128196;</span>
-        </div>
-        <div class="card-content">
-          <h2 class="card-title">
-            Cotizaciones
-            <span class="card-arrow">&rarr;</span>
-          </h2>
-          <p class="card-description">
-            Sistema de gestión comercial. Cotizaciones, clientes y generación de órdenes de trabajo.
+        <a href="/reportes.html" class="module-card tertiary">
+          <div class="module-header">
+            <div class="module-icon">&#128200;</div>
+            <span class="module-badge">Activo</span>
+          </div>
+          <h3 class="module-title">
+            Reportes y Métricas
+            <span class="module-arrow">&rarr;</span>
+          </h3>
+          <p class="module-description">
+            Análisis de producción, eficiencia por estación y tracking de mermas.
           </p>
-          <div class="card-features">
-            <span class="feature-tag">Clientes</span>
-            <span class="feature-tag">Productos</span>
-            <span class="feature-tag">Facturación</span>
+          <div class="module-features">
+            <span class="feature-chip">Dashboard</span>
+            <span class="feature-chip">KPIs</span>
           </div>
-        </div>
-      </a>
+        </a>
 
-      <!-- Reportes -->
-      <a href="/reportes.html" class="card">
-        <div class="card-icon">
-          <span>&#128200;</span>
-        </div>
-        <div class="card-content">
-          <h2 class="card-title">
-            Reportes
-            <span class="card-arrow">&rarr;</span>
-          </h2>
-          <p class="card-description">
-            Análisis de producción, eficiencia, mermas y métricas de rendimiento.
+        <a href="/produccion/" class="module-card tertiary">
+          <div class="module-header">
+            <div class="module-icon">&#127912;</div>
+            <span class="module-badge">Activo</span>
+          </div>
+          <h3 class="module-title">
+            Diseño
+            <span class="module-arrow">&rarr;</span>
+          </h3>
+          <p class="module-description">
+            Primera estación del flujo. Revisión y aprobación de artes gráficas.
           </p>
-          <div class="card-features">
-            <span class="feature-tag">Dashboard</span>
-            <span class="feature-tag">Métricas</span>
+          <div class="module-features">
+            <span class="feature-chip">PIN: 0000</span>
+            <span class="feature-chip">Artes</span>
           </div>
-        </div>
-      </a>
-    </div>
+        </a>
+      </div>
+    </section>
+  </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-line"></div>
-      <p class="footer-text">
-        <strong>FULLEMPAQUES</strong> &copy; 2026 &mdash; Soluciones Litográficas Integrales
-      </p>
-    </footer>
-  </div>
+  <footer class="footer">
+    <p class="footer-text">
+      <strong>FULLEMPAQUES</strong> &copy; 2026 &mdash; Sistema Integral de Gestión Litográfica
+    </p>
+  </footer>
 
   <script>
-    // Update time
     function updateTime() {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-      const dateStr = now.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
-
-      document.getElementById('time').textContent = timeStr;
-      document.getElementById('date').textContent = dateStr;
+      const timeStr = now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+      document.getElementById('navbar-time').textContent = timeStr;
     }
-
     updateTime();
     setInterval(updateTime, 1000);
-
-    // Mouse tracking for cards
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        card.style.setProperty('--mouse-x', `${x}%`);
-        card.style.setProperty('--mouse-y', `${y}%`);
-      });
-    });
-
-    // Animate stats on load
-    function animateValue(id, start, end, duration) {
-      const obj = document.getElementById(id);
-      if (!obj) return;
-
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.textContent = Math.floor(progress * (end - start) + start);
-        if (progress < 1) {
-          window.requestAnimationFrame(step);
-        }
-      };
-      window.requestAnimationFrame(step);
-    }
-
-    // Trigger animations after page load
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        animateValue('stat-estaciones', 0, 10, 1500);
-        animateValue('stat-modulos', 0, 5, 1500);
-      }, 500);
-    });
   </script>
 </body>
 </html>
